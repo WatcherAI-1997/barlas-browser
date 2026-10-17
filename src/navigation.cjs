@@ -1,6 +1,6 @@
 'use strict';
 
-const SEARCH_ENDPOINT = 'https://duckduckgo.com/?q=';
+const SEARCH_ENDPOINT = 'https://www.google.com/search?q=';
 
 function normalizeAddress(input) {
   const value = String(input ?? '').trim();

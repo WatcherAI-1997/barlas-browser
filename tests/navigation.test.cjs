@@ -18,12 +18,12 @@ test('uses HTTP for local development hosts', () => {
 });
 
 test('turns ordinary text into an encoded search', () => {
-  assert.equal(normalizeAddress('barlas browser тест'), 'https://duckduckgo.com/?q=barlas%20browser%20%D1%82%D0%B5%D1%81%D1%82');
+  assert.equal(normalizeAddress('barlas browser тест'), 'https://www.google.com/search?q=barlas%20browser%20%D1%82%D0%B5%D1%81%D1%82');
 });
 
 test('rejects privileged and script protocols as searches', () => {
-  assert.match(normalizeAddress('javascript://alert(1)'), /^https:\/\/duckduckgo\.com\/\?q=/);
-  assert.match(normalizeAddress('chrome://settings'), /^https:\/\/duckduckgo\.com\/\?q=/);
+  assert.match(normalizeAddress('javascript://alert(1)'), /^https:\/\/www\.google\.com\/search\?q=/);
+  assert.match(normalizeAddress('chrome://settings'), /^https:\/\/www\.google\.com\/search\?q=/);
 });
 
 test('supports internal Barlas pages', () => {
