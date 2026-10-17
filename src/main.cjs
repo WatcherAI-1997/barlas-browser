@@ -5,6 +5,7 @@ const fs = require('node:fs/promises');
 const { app, BrowserWindow, WebContentsView, ipcMain, session, shell } = require('electron');
 const { normalizeAddress } = require('./navigation.cjs');
 const { countryCodeFromResponse, languageForCountry, supportedSystemLanguage } = require('./localization.cjs');
+const { sanitizeBrowserData } = require('./browser-data.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
@@ -42,9 +43,43 @@ let layout = { ...DEFAULT_LAYOUT };
 let nextTabId = 1;
 const tabs = new Map();
 let localeState = { language: 'en', countryCode: '', source: 'system' };
+let browserData = sanitizeBrowserData();
+let saveQueue = Promise.resolve();
+let restoringSession = false;
 
 function settingsPath() {
   return path.join(app.getPath('userData'), 'locale.json');
+}
+
+function browserDataPath() {
+  return path.join(app.getPath('userData'), 'browser-data.json');
+}
+
+async function readBrowserData() {
+  try {
+    return sanitizeBrowserData(JSON.parse(await fs.readFile(browserDataPath(), 'utf8')));
+  } catch {
+    return sanitizeBrowserData();
+  }
+}
+
+function sessionSnapshot() {
+  const orderedTabs = [...tabs.values()];
+  const urls = orderedTabs.map((tab) => tab.displayUrl).filter((url) => /^https?:\/\//.test(url));
+  const activeUrl = activeTab()?.displayUrl;
+  return { urls, activeIndex: Math.max(0, urls.indexOf(activeUrl)) };
+}
+
+function persistBrowserData() {
+  if (restoringSession) return;
+  browserData.session = sessionSnapshot();
+  const snapshot = JSON.stringify(sanitizeBrowserData(browserData), null, 2);
+  saveQueue = saveQueue.then(async () => {
+    await fs.mkdir(app.getPath('userData'), { recursive: true });
+    const temporaryPath = `${browserDataPath()}.tmp`;
+    await fs.writeFile(temporaryPath, snapshot, 'utf8');
+    await fs.rename(temporaryPath, browserDataPath());
+  }).catch(() => undefined);
 }
 
 async function readCachedLocale() {
@@ -110,7 +145,9 @@ function state() {
   return {
     tabs: [...tabs.values()].map(publicTab),
     activeTabId,
-    locale: localeState
+    locale: localeState,
+    bookmarks: browserData.bookmarks,
+    activeBookmarked: browserData.bookmarks.some((bookmark) => bookmark.url === activeTab()?.displayUrl)
   };
 }
 
@@ -174,14 +211,17 @@ function wireTab(tab) {
     tab.loading = false;
     const current = contents.getURL();
     tab.displayUrl = current.startsWith('data:') ? '' : current;
+    persistBrowserData();
     broadcast();
   });
   contents.on('did-navigate', (_event, url) => {
     tab.displayUrl = url.startsWith('data:') ? '' : url;
+    persistBrowserData();
     broadcast();
   });
   contents.on('did-navigate-in-page', (_event, url) => {
     tab.displayUrl = url;
+    persistBrowserData();
     broadcast();
   });
   contents.on('render-process-gone', () => {
@@ -207,6 +247,9 @@ function handleShortcut(event, input) {
   } else if (command && key === 'r') {
     event.preventDefault();
     activeTab()?.view.webContents.reload();
+  } else if (command && key === 'd') {
+    event.preventDefault();
+    toggleBookmark();
   } else if (input.alt && input.key === 'ArrowLeft') {
     event.preventDefault();
     if (activeTab()?.view.webContents.canGoBack()) activeTab().view.webContents.goBack();
@@ -234,6 +277,7 @@ function createTab(url = 'barlas://newtab', activate = true) {
   navigateTab(tab, url).catch(() => undefined);
   if (activate) selectTab(id);
   broadcast();
+  persistBrowserData();
   return id;
 }
 
@@ -247,6 +291,7 @@ function selectTab(id) {
   updateBounds();
   tab.view.webContents.focus();
   broadcast();
+  persistBrowserData();
   return true;
 }
 
@@ -261,6 +306,27 @@ function closeTab(id) {
   tabs.delete(numericId);
   if (tabs.size === 0) return createTab();
   if (activeTabId === numericId) selectTab(ordered[index + 1] ?? ordered[index - 1]);
+  broadcast();
+  persistBrowserData();
+  return true;
+}
+
+function toggleBookmark() {
+  const tab = activeTab();
+  if (!tab || !/^https?:\/\//.test(tab.displayUrl)) return false;
+  const index = browserData.bookmarks.findIndex((bookmark) => bookmark.url === tab.displayUrl);
+  if (index >= 0) browserData.bookmarks.splice(index, 1);
+  else browserData.bookmarks.unshift({ title: tab.title || tab.displayUrl, url: tab.displayUrl });
+  persistBrowserData();
+  broadcast();
+  return index < 0;
+}
+
+function removeBookmark(url) {
+  const before = browserData.bookmarks.length;
+  browserData.bookmarks = browserData.bookmarks.filter((bookmark) => bookmark.url !== url);
+  if (browserData.bookmarks.length === before) return false;
+  persistBrowserData();
   broadcast();
   return true;
 }
@@ -279,6 +345,8 @@ function installIpc() {
   ipcMain.handle('browser:reload', () => activeTab()?.view.webContents.reload());
   ipcMain.handle('browser:stop', () => activeTab()?.view.webContents.stop());
   ipcMain.handle('browser:home', () => activeTab() && navigateTab(activeTab(), 'barlas://newtab'));
+  ipcMain.handle('browser:toggle-bookmark', () => toggleBookmark());
+  ipcMain.handle('browser:remove-bookmark', (_event, url) => removeBookmark(url));
   ipcMain.on('browser:layout', (_event, value) => {
     if (!value || typeof value !== 'object') return;
     layout = {
@@ -313,11 +381,19 @@ function createWindow() {
   window.on('maximize', updateBounds);
   window.on('unmaximize', updateBounds);
   window.webContents.on('before-input-event', (event, input) => handleShortcut(event, input));
-  window.webContents.once('did-finish-load', () => createTab());
+  window.webContents.once('did-finish-load', () => {
+    const saved = browserData.session.urls;
+    if (!saved.length) return createTab();
+    restoringSession = true;
+    const ids = saved.map((url) => createTab(url, false));
+    selectTab(ids[browserData.session.activeIndex] || ids[0]);
+    restoringSession = false;
+    persistBrowserData();
+  });
 }
 
 app.whenReady().then(async () => {
-  localeState = await detectLocale();
+  [localeState, browserData] = await Promise.all([detectLocale(), readBrowserData()]);
   const browserSession = session.fromPartition('persist:barlas-browser');
   browserSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
   browserSession.setPermissionCheckHandler(() => false);

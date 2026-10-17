@@ -59,8 +59,25 @@ button { color: inherit; }
 .security-indicator.insecure { color: #c8a149; }
 .address-form input { min-width: 0; flex: 1; height: 100%; border: 0; outline: 0; background: transparent; color: #e6e8eb; user-select: text; font-size: 13px; }
 .address-form input::placeholder { color: #686d76; }
-.go-button { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #777c84; }
-.go-button:hover { background: #202329; color: white; }
+.go-button, .bookmark-button { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: #777c84; }
+.go-button:hover, .bookmark-button:hover { background: #202329; color: white; }
+.bookmark-button { font-size: 20px; line-height: 1; }
+.bookmark-button.active { color: #ffb92e; }
+.side-panel { position: fixed; left: 58px; top: 102px; bottom: 0; width: 300px; z-index: 4; padding: 18px 14px; background: #0e1013; border-right: 1px solid var(--line); box-shadow: 14px 0 32px #0005; overflow: auto; }
+.panel-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 4px 16px; }
+.panel-heading h2 { margin: 0; font-size: 17px; }
+.panel-close { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 20px; }
+.panel-close:hover { background: #22252b; color: white; }
+.panel-empty { padding: 22px 8px; color: var(--muted); font-size: 13px; text-align: center; }
+.bookmark-list { display: grid; gap: 5px; }
+.bookmark-item { display: flex; align-items: center; gap: 8px; min-width: 0; padding: 8px; border-radius: 10px; }
+.bookmark-item:hover { background: #191b20; }
+.bookmark-link { flex: 1; min-width: 0; padding: 0; border: 0; background: transparent; color: inherit; text-align: left; cursor: pointer; }
+.bookmark-title, .bookmark-url { display: block; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.bookmark-title { font-size: 13px; }
+.bookmark-url { margin-top: 3px; color: var(--muted); font-size: 10px; }
+.bookmark-remove { flex: 0 0 26px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 7px; background: transparent; color: #777c85; }
+.bookmark-remove:hover { background: #30333a; color: white; }
 .toast { position: fixed; left: 76px; bottom: 18px; z-index: 10; padding: 11px 14px; border: 1px solid #393c43; border-radius: 11px; background: #181a1f; box-shadow: 0 12px 40px #0008; color: #d9dbe0; font-size: 12px; }
 
 @media (max-width: 1050px) {

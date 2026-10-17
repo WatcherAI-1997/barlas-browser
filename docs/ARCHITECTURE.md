@@ -10,6 +10,10 @@ BARLAS Browser separates trusted application UI from untrusted web pages.
 tabs, navigation, downloads, permission policy, and the persistent browser
 session.
 
+Bookmarks and the restorable list of open HTTP(S) tabs are validated and
+stored locally in the Electron user-data directory. Writes use a temporary
+file and atomic rename so an interrupted write does not leave partial JSON.
+
 At startup, the main process requests only a country code from `ipwho.is`, maps
 it to a supported interface language, and caches the country locally for seven
 days. If the request fails, the operating-system language is used instead.
@@ -21,8 +25,8 @@ It does not expose Node.js, Electron internals, or generic IPC primitives.
 
 ### Browser shell
 
-Files under `renderer/` implement the tab strip, navigation controls, sidebar,
-and BARLAS panel. The shell uses a restrictive Content Security Policy.
+Files under `renderer/` implement the tab strip, navigation controls, and
+bookmark sidebar. The shell uses a restrictive Content Security Policy.
 
 ### Web content
 

@@ -17,6 +17,7 @@
 
     <aside class="rail" aria-label="Боковая панель">
       <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка">⌂</button>
+      <button id="bookmarks" class="rail-button" title="Закладки" aria-label="Закладки">★</button>
       <div class="rail-spacer"></div>
       <button id="settings" class="rail-button" title="Настройки (в разработке)" aria-label="Настройки">⚙</button>
     </aside>
@@ -28,10 +29,20 @@
       <form id="address-form" class="address-form">
         <span id="security-indicator" class="security-indicator" title="Состояние соединения">●</span>
         <input id="address" type="text" autocomplete="off" spellcheck="false" aria-label="Адрес или поисковый запрос" placeholder="Введите адрес или поисковый запрос" />
+        <button id="bookmark-page" type="button" class="bookmark-button" title="Добавить в закладки" aria-label="Добавить в закладки">☆</button>
         <button id="go" type="submit" class="go-button" aria-label="Перейти">↵</button>
       </form>
       <button id="menu" class="toolbar-button" title="Меню" aria-label="Меню">⋮</button>
     </nav>
+
+    <section id="bookmarks-panel" class="side-panel" aria-label="Закладки" hidden>
+      <div class="panel-heading">
+        <h2 id="bookmarks-title">Закладки</h2>
+        <button id="close-bookmarks" class="panel-close" aria-label="Закрыть">×</button>
+      </div>
+      <div id="bookmarks-empty" class="panel-empty">Сохранённых страниц пока нет</div>
+      <div id="bookmarks-list" class="bookmark-list"></div>
+    </section>
 
     <div id="toast" class="toast" role="status" hidden></div>
     <script src="./app.js"></script>

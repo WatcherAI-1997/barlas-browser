@@ -27,6 +27,8 @@ boundary, and a focused roadmap for everyday browsing.
 - Chromium-compatible browsing in independent tabs
 - Google search directly from the address bar
 - Automatic country detection by IP with a localized browser interface
+- Local bookmarks with a dedicated sidebar
+- Automatic restore of open web tabs after restart
 - Back, forward, reload, stop, home, and common keyboard shortcuts
 - Popup links converted into controlled tabs
 - Persistent browser profile and native downloads
@@ -81,13 +83,14 @@ shell. More detail is available in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `Ctrl/Cmd + T` | Open a new tab |
 | `Ctrl/Cmd + W` | Close the current tab |
 | `Ctrl/Cmd + R` | Reload the current page |
+| `Ctrl/Cmd + D` | Add or remove the current bookmark |
 | `Alt + Left/Right` | Navigate through page history |
 
 ## Project status
 
-Version `0.1.x` is the browser foundation. Bookmarks, history, session restore,
-workspaces, tab groups, per-site permissions, content blocking, and signed
-installers are tracked in the [roadmap](docs/ROADMAP.md).
+Version `0.2.x` adds the first daily-browsing features. History, closed-tab
+restore, workspaces, tab groups, per-site permissions, content blocking, and
+signed installers are tracked in the [roadmap](docs/ROADMAP.md).
 
 ## Contributing
 
@@ -105,7 +108,8 @@ scope; the same commands already run locally.
 BARLAS Browser — открытый самостоятельный desktop-браузер на Chromium с
 компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
 вкладки, Google-поиск из адресной строки, автоматический выбор языка по стране,
-загрузки, горячие клавиши и изоляцию сайтов. В браузере нет встроенного ИИ и
+локальные закладки, восстановление открытых вкладок, загрузки, горячие клавиши
+и изоляцию сайтов. В браузере нет встроенного ИИ и
 зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,
 управление разрешениями и тестирование на Windows.

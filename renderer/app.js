@@ -3,6 +3,18 @@ const tabsElement = $('#tabs');
 const address = $('#address');
 let browserState = { tabs: [], activeTabId: null };
 let language = 'en';
+let bookmarksOpen = false;
+
+const BOOKMARK_COPY = {
+  az: { bookmarks: 'Əlfəcinlər', addBookmark: 'Əlfəcinlərə əlavə et', removeBookmark: 'Əlfəcini sil', emptyBookmarks: 'Hələ saxlanmış səhifə yoxdur', close: 'Bağla' },
+  en: { bookmarks: 'Bookmarks', addBookmark: 'Add bookmark', removeBookmark: 'Remove bookmark', emptyBookmarks: 'No saved pages yet', close: 'Close' },
+  kk: { bookmarks: 'Бетбелгілер', addBookmark: 'Бетбелгіге қосу', removeBookmark: 'Бетбелгіні жою', emptyBookmarks: 'Сақталған беттер әзірге жоқ', close: 'Жабу' },
+  ky: { bookmarks: 'Кыстармалар', addBookmark: 'Кыстармага кошуу', removeBookmark: 'Кыстарманы өчүрүү', emptyBookmarks: 'Сакталган барактар азырынча жок', close: 'Жабуу' },
+  mn: { bookmarks: 'Хавчуурга', addBookmark: 'Хавчуургад нэмэх', removeBookmark: 'Хавчуургыг устгах', emptyBookmarks: 'Хадгалсан хуудас алга', close: 'Хаах' },
+  ru: { bookmarks: 'Закладки', addBookmark: 'Добавить в закладки', removeBookmark: 'Удалить закладку', emptyBookmarks: 'Сохранённых страниц пока нет', close: 'Закрыть' },
+  tr: { bookmarks: 'Yer imleri', addBookmark: 'Yer imlerine ekle', removeBookmark: 'Yer imini kaldır', emptyBookmarks: 'Henüz kaydedilmiş sayfa yok', close: 'Kapat' },
+  uz: { bookmarks: 'Xatcho‘plar', addBookmark: 'Xatcho‘pga qo‘shish', removeBookmark: 'Xatcho‘pni o‘chirish', emptyBookmarks: 'Hali saqlangan sahifalar yo‘q', close: 'Yopish' }
+};
 
 const COPY = {
   az: { newTab: 'Yeni tab', closeTab: 'Tabı bağla', settingsSoon: 'Məxfilik parametrləri növbəti versiyada olacaq', privacySettings: 'Məxfilik parametrləri (hazırlanır)', sidebar: 'Yan panel', navigation: 'Naviqasiya', back: 'Geri', forward: 'İrəli', reload: 'Yenilə', stop: 'Dayandır', connection: 'Bağlantı vəziyyəti', address: 'Ünvan və ya axtarış sorğusu', addressPlaceholder: 'Ünvan və ya axtarış sorğusu daxil edin', go: 'Keç', menu: 'Menyu' },
@@ -19,6 +31,10 @@ function t(key) {
   return (COPY[language] || COPY.en)[key];
 }
 
+function bt(key) {
+  return (BOOKMARK_COPY[language] || BOOKMARK_COPY.en)[key];
+}
+
 function applyLocale(locale) {
   language = COPY[locale?.language] ? locale.language : 'en';
   document.documentElement.lang = language;
@@ -27,6 +43,12 @@ function applyLocale(locale) {
   $('.rail').ariaLabel = t('sidebar');
   $('#home').title = t('newTab');
   $('#home').ariaLabel = t('newTab');
+  $('#bookmarks').title = bt('bookmarks');
+  $('#bookmarks').ariaLabel = bt('bookmarks');
+  $('#bookmarks-panel').ariaLabel = bt('bookmarks');
+  $('#bookmarks-title').textContent = bt('bookmarks');
+  $('#bookmarks-empty').textContent = bt('emptyBookmarks');
+  $('#close-bookmarks').ariaLabel = bt('close');
   $('#settings').title = t('privacySettings');
   $('#settings').ariaLabel = t('privacySettings');
   $('.toolbar').ariaLabel = t('navigation');
@@ -38,6 +60,35 @@ function applyLocale(locale) {
   address.ariaLabel = t('address');
   address.placeholder = t('addressPlaceholder');
   $('#go').ariaLabel = t('go');
+}
+
+function renderBookmarks() {
+  const list = $('#bookmarks-list');
+  list.replaceChildren();
+  const bookmarks = browserState.bookmarks || [];
+  $('#bookmarks-empty').hidden = bookmarks.length > 0;
+  for (const bookmark of bookmarks) {
+    const item = document.createElement('div');
+    item.className = 'bookmark-item';
+    const link = document.createElement('button');
+    link.className = 'bookmark-link';
+    const title = document.createElement('span');
+    title.className = 'bookmark-title';
+    title.textContent = bookmark.title || bookmark.url;
+    const url = document.createElement('span');
+    url.className = 'bookmark-url';
+    url.textContent = bookmark.url;
+    link.append(title, url);
+    link.addEventListener('click', () => window.barlas.newTab(bookmark.url));
+    const remove = document.createElement('button');
+    remove.className = 'bookmark-remove';
+    remove.textContent = '×';
+    remove.title = bt('removeBookmark');
+    remove.ariaLabel = bt('removeBookmark');
+    remove.addEventListener('click', () => window.barlas.removeBookmark(bookmark.url));
+    item.append(link, remove);
+    list.append(item);
+  }
 }
 
 function activeTab() {
@@ -94,6 +145,7 @@ function render(state) {
   browserState = state;
   applyLocale(state.locale);
   renderTabs();
+  renderBookmarks();
   const tab = activeTab();
   if (document.activeElement !== address) address.value = tab?.url || '';
   $('#back').disabled = !tab?.canGoBack;
@@ -102,11 +154,23 @@ function render(state) {
   $('#reload').title = tab?.loading ? t('stop') : t('reload');
   $('#reload').ariaLabel = $('#reload').title;
   $('#security-indicator').classList.toggle('insecure', Boolean(tab?.url && !tab.url.startsWith('https://')));
+  $('#bookmark-page').textContent = state.activeBookmarked ? '★' : '☆';
+  $('#bookmark-page').classList.toggle('active', Boolean(state.activeBookmarked));
+  $('#bookmark-page').title = state.activeBookmarked ? bt('removeBookmark') : bt('addBookmark');
+  $('#bookmark-page').ariaLabel = $('#bookmark-page').title;
   requestLayout();
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: 58, y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: bookmarksOpen ? 358 : 58, y: 102, right: 0, bottom: 0 });
+}
+
+function setBookmarksOpen(open) {
+  bookmarksOpen = open;
+  $('#bookmarks-panel').hidden = !open;
+  $('#bookmarks').classList.toggle('active', open);
+  $('#home').classList.toggle('active', !open);
+  requestLayout();
 }
 
 $('#address-form').addEventListener('submit', (event) => {
@@ -117,6 +181,9 @@ $('#address-form').addEventListener('submit', (event) => {
 address.addEventListener('focus', () => address.select());
 $('#new-tab').addEventListener('click', () => window.barlas.newTab());
 $('#home').addEventListener('click', () => window.barlas.newTab());
+$('#bookmarks').addEventListener('click', () => setBookmarksOpen(!bookmarksOpen));
+$('#close-bookmarks').addEventListener('click', () => setBookmarksOpen(false));
+$('#bookmark-page').addEventListener('click', () => window.barlas.toggleBookmark());
 $('#back').addEventListener('click', () => window.barlas.back());
 $('#forward').addEventListener('click', () => window.barlas.forward());
 $('#reload').addEventListener('click', () => activeTab()?.loading ? window.barlas.stop() : window.barlas.reload());

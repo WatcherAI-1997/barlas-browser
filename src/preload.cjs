@@ -13,6 +13,8 @@ contextBridge.exposeInMainWorld('barlas', {
   reload: () => ipcRenderer.invoke('browser:reload'),
   stop: () => ipcRenderer.invoke('browser:stop'),
   home: () => ipcRenderer.invoke('browser:home'),
+  toggleBookmark: () => ipcRenderer.invoke('browser:toggle-bookmark'),
+  removeBookmark: (url) => ipcRenderer.invoke('browser:remove-bookmark', url),
   reportLayout: (layout) => ipcRenderer.send('browser:layout', layout),
   onState: (callback) => {
     const handler = (_event, state) => callback(state);

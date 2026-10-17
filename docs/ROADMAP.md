@@ -12,9 +12,11 @@ The roadmap is directional. Security fixes take priority over feature work.
 
 ## 0.2 — Daily browsing
 
-- [ ] Bookmarks and bookmark import
+- [x] Local bookmarks
+- [ ] Bookmark import
 - [ ] Searchable browsing history
-- [ ] Session and closed-tab restore
+- [x] Open-session restore
+- [ ] Closed-tab restore
 - [ ] Download manager
 - [ ] Per-site permission controls
 - [ ] Configurable search provider
