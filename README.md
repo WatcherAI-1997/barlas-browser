@@ -38,6 +38,19 @@ boundary, and a focused roadmap for everyday browsing.
 
 ## Quick start
 
+### Windows installer
+
+Download the current installer from the
+[latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
+Run `BARLAS-Browser-Setup-0.2.1-Windows-x64.exe`, choose an installation
+directory, and complete the setup wizard.
+
+The alpha installer is not yet code-signed, so Windows SmartScreen may identify
+it as an unknown publisher. Verify the SHA-256 checksum shown in the release
+notes before running it.
+
+### From source
+
 Requirements: **Node.js 22+** on Windows, Linux, or macOS.
 
 ```bash
