@@ -19,7 +19,7 @@
       <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка">⌂</button>
       <button id="bookmarks" class="rail-button" title="Закладки" aria-label="Закладки">★</button>
       <div class="rail-spacer"></div>
-      <button id="settings" class="rail-button" title="Настройки (в разработке)" aria-label="Настройки">⚙</button>
+      <button id="settings" class="rail-button" title="Настройки" aria-label="Настройки">⚙</button>
     </aside>
 
     <nav class="toolbar" aria-label="Навигация">
@@ -42,6 +42,35 @@
       </div>
       <div id="bookmarks-empty" class="panel-empty">Сохранённых страниц пока нет</div>
       <div id="bookmarks-list" class="bookmark-list"></div>
+    </section>
+
+    <section id="settings-panel" class="side-panel settings-panel" aria-label="Настройки" hidden>
+      <div class="panel-heading">
+        <h2 id="settings-title">Настройки</h2>
+        <button id="close-settings" class="panel-close" aria-label="Закрыть">×</button>
+      </div>
+      <div class="setting-group">
+        <label id="search-engine-label" for="search-engine">Поисковая система</label>
+        <select id="search-engine">
+          <option value="google">Google</option>
+          <option value="bing">Bing</option>
+          <option value="duckduckgo">DuckDuckGo</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label id="language-label" for="interface-language">Язык интерфейса</label>
+        <select id="interface-language"></select>
+        <p id="language-note" class="setting-note">Автоматический режим использует страну и язык системы.</p>
+      </div>
+      <div class="setting-group">
+        <div id="startup-label" class="setting-label">Запуск</div>
+        <label class="setting-switch">
+          <input id="restore-session" type="checkbox" />
+          <span id="restore-session-label">Восстанавливать открытые вкладки</span>
+        </label>
+      </div>
+      <button id="open-downloads" class="setting-action">Открыть папку загрузок</button>
+      <div class="settings-version">BARLAS Browser 0.2.2</div>
     </section>
 
     <div id="toast" class="toast" role="status" hidden></div>

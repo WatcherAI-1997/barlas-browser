@@ -13,6 +13,8 @@ session.
 Bookmarks and the restorable list of open HTTP(S) tabs are validated and
 stored locally in the Electron user-data directory. Writes use a temporary
 file and atomic rename so an interrupted write does not leave partial JSON.
+The same validated store keeps the selected search provider, startup restore
+preference, and manual or automatic interface-language choice.
 
 At startup, the main process requests only a country code from `ipwho.is` and
 maps all 251 ISO-backed countries and territories to 79 primary interface

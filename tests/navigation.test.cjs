@@ -21,6 +21,12 @@ test('turns ordinary text into an encoded search', () => {
   assert.equal(normalizeAddress('barlas browser тест'), 'https://www.google.com/search?q=barlas%20browser%20%D1%82%D0%B5%D1%81%D1%82');
 });
 
+test('supports a configured search engine', () => {
+  assert.equal(normalizeAddress('barlas browser', 'bing'), 'https://www.bing.com/search?q=barlas%20browser');
+  assert.equal(normalizeAddress('barlas browser', 'duckduckgo'), 'https://duckduckgo.com/?q=barlas%20browser');
+  assert.match(normalizeAddress('barlas browser', 'invalid'), /^https:\/\/www\.google\.com\/search\?q=/);
+});
+
 test('rejects privileged and script protocols as searches', () => {
   assert.match(normalizeAddress('javascript://alert(1)'), /^https:\/\/www\.google\.com\/search\?q=/);
   assert.match(normalizeAddress('chrome://settings'), /^https:\/\/www\.google\.com\/search\?q=/);

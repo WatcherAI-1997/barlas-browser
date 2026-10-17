@@ -20,7 +20,7 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [ ] Closed-tab restore
 - [ ] Download manager
 - [ ] Per-site permission controls
-- [ ] Configurable search provider
+- [x] Configurable search provider
 
 ## 0.3 — Privacy and reliability
 

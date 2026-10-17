@@ -2,7 +2,7 @@
 
 const path = require('node:path');
 const fs = require('node:fs/promises');
-const { app, BrowserWindow, WebContentsView, ipcMain, session, shell } = require('electron');
+const { app, BrowserWindow, WebContentsView, dialog, ipcMain, Menu, session, shell } = require('electron');
 const { normalizeAddress } = require('./navigation.cjs');
 const {
   BUNDLED_LANGUAGES,
@@ -11,7 +11,7 @@ const {
   languageForCountry,
   supportedSystemLanguage
 } = require('./localization.cjs');
-const { sanitizeBrowserData } = require('./browser-data.cjs');
+const { safeLanguage, sanitizeBrowserData } = require('./browser-data.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
@@ -41,8 +41,36 @@ const EN_INTERFACE_COPY = Object.freeze({
   addBookmark: 'Add bookmark',
   removeBookmark: 'Remove bookmark',
   emptyBookmarks: 'No saved pages yet',
-  close: 'Close'
+  close: 'Close',
+  settings: 'Settings',
+  searchEngine: 'Search engine',
+  startup: 'Startup',
+  restoreTabs: 'Restore open tabs after restart',
+  language: 'Interface language',
+  automatic: 'Automatic (country and system)',
+  downloads: 'Downloads',
+  zoom: 'Zoom',
+  zoomIn: 'Zoom in',
+  zoomOut: 'Zoom out',
+  zoomReset: 'Reset zoom',
+  fullscreen: 'Fullscreen',
+  about: 'About BARLAS Browser',
+  saved: 'Saved'
 });
+
+const MAIN_UI_COPY = {
+  az: { bookmarks: 'Əlfəcinlər', downloads: 'Yükləmələr', zoom: 'Miqyas', zoomIn: 'Böyüt', zoomOut: 'Kiçilt', zoomReset: 'Miqyası sıfırla', fullscreen: 'Tam ekran', settings: 'Parametrlər', about: 'BARLAS Browser haqqında' },
+  kk: { bookmarks: 'Бетбелгілер', downloads: 'Жүктеулер', zoom: 'Масштаб', zoomIn: 'Үлкейту', zoomOut: 'Кішірейту', zoomReset: 'Масштабты қалпына келтіру', fullscreen: 'Толық экран', settings: 'Баптаулар', about: 'BARLAS Browser туралы' },
+  ky: { bookmarks: 'Кыстармалар', downloads: 'Жүктөөлөр', zoom: 'Масштаб', zoomIn: 'Чоңойтуу', zoomOut: 'Кичирейтүү', zoomReset: 'Масштабды баштапкы абалга келтирүү', fullscreen: 'Толук экран', settings: 'Жөндөөлөр', about: 'BARLAS Browser жөнүндө' },
+  mn: { bookmarks: 'Хавчуурга', downloads: 'Таталтууд', zoom: 'Томруулалт', zoomIn: 'Томруулах', zoomOut: 'Жижигрүүлэх', zoomReset: 'Томруулалтыг сэргээх', fullscreen: 'Дэлгэц дүүрэн', settings: 'Тохиргоо', about: 'BARLAS Browser-ийн тухай' },
+  ru: {
+    bookmarks: 'Закладки', downloads: 'Загрузки', zoom: 'Масштаб', zoomIn: 'Увеличить',
+    zoomOut: 'Уменьшить', zoomReset: 'Сбросить масштаб', fullscreen: 'Полноэкранный режим',
+    settings: 'Настройки', about: 'О BARLAS Browser'
+  },
+  tr: { bookmarks: 'Yer imleri', downloads: 'İndirilenler', zoom: 'Yakınlaştırma', zoomIn: 'Yakınlaştır', zoomOut: 'Uzaklaştır', zoomReset: 'Yakınlaştırmayı sıfırla', fullscreen: 'Tam ekran', settings: 'Ayarlar', about: 'BARLAS Browser hakkında' },
+  uz: { bookmarks: 'Xatcho‘plar', downloads: 'Yuklamalar', zoom: 'Masshtab', zoomIn: 'Kattalashtirish', zoomOut: 'Kichraytirish', zoomReset: 'Masshtabni tiklash', fullscreen: 'To‘liq ekran', settings: 'Sozlamalar', about: 'BARLAS Browser haqida' }
+};
 
 const NEW_TAB_COPY = {
   az: ['İrəli düşün. Hüdudları aş.', 'Yuxarıdakı sətrə ünvan və ya sorğu daxil edin'],
@@ -68,7 +96,10 @@ const MAIN_COPY = {
 
 function mainCopy(key) {
   if (localeState.messages?.[key]) return localeState.messages[key];
-  return (MAIN_COPY[localeState.language] || MAIN_COPY.en)[key];
+  return (MAIN_COPY[localeState.language] || MAIN_COPY.en)[key]
+    || MAIN_UI_COPY[localeState.language]?.[key]
+    || EN_INTERFACE_COPY[key]
+    || key;
 }
 
 function escapeHtml(value) {
@@ -122,11 +153,20 @@ function persistBrowserData() {
   }).catch(() => undefined);
 }
 
-async function readCachedLocale() {
+async function readCachedLocale(preferredLanguage = 'auto') {
   try {
     const cached = JSON.parse(await fs.readFile(settingsPath(), 'utf8'));
     const detectedAt = Number(cached.detectedAt);
     if (!Number.isFinite(detectedAt) || Date.now() - detectedAt > GEO_CACHE_MAX_AGE) return null;
+    if (preferredLanguage !== 'auto') {
+      if (cached.source !== 'manual' || cached.language !== preferredLanguage) return null;
+      return {
+        language: preferredLanguage,
+        countryCode: '',
+        source: 'manual',
+        messages: sanitizeMessages(cached.messages)
+      };
+    }
     if (!/^[A-Z]{2}$/.test(String(cached.countryCode || ''))) return null;
     const language = languageForCountry(cached.countryCode);
     return {
@@ -182,22 +222,39 @@ async function withInterfaceTranslation(locale) {
   return { ...locale, messages: await translateInterface(locale.language) };
 }
 
-async function detectLocale() {
-  const cached = await readCachedLocale();
+async function writeLocaleCache(locale) {
+  try {
+    await fs.mkdir(app.getPath('userData'), { recursive: true });
+    await fs.writeFile(settingsPath(), JSON.stringify({
+      countryCode: locale.countryCode,
+      language: locale.language,
+      source: locale.source,
+      messages: locale.messages,
+      detectedAt: Date.now()
+    }), 'utf8');
+  } catch {
+    // A read-only profile can still use the locale for this session.
+  }
+}
+
+async function detectLocale(preferredLanguage = 'auto') {
+  const requestedLanguage = safeLanguage(preferredLanguage);
+  const cached = await readCachedLocale(requestedLanguage);
   if (cached) {
     if (BUNDLED_LANGUAGES.has(baseLanguage(cached.language)) || Object.keys(cached.messages).length) return cached;
     const translated = { ...cached, messages: await translateInterface(cached.language) };
-    try {
-      await fs.writeFile(settingsPath(), JSON.stringify({
-        countryCode: translated.countryCode,
-        language: translated.language,
-        messages: translated.messages,
-        detectedAt: Date.now()
-      }), 'utf8');
-    } catch {
-      // A read-only profile can still use the translation for this session.
-    }
+    await writeLocaleCache(translated);
     return translated;
+  }
+
+  if (requestedLanguage !== 'auto') {
+    const manual = await withInterfaceTranslation({
+      language: requestedLanguage,
+      countryCode: '',
+      source: 'manual'
+    });
+    await writeLocaleCache(manual);
+    return manual;
   }
 
   const fallback = {
@@ -217,17 +274,7 @@ async function detectLocale() {
       countryCode,
       source: 'ip'
     });
-    try {
-      await fs.mkdir(app.getPath('userData'), { recursive: true });
-      await fs.writeFile(settingsPath(), JSON.stringify({
-        countryCode,
-        language: detected.language,
-        messages: detected.messages,
-        detectedAt: Date.now()
-      }), 'utf8');
-    } catch {
-      // Language selection still works when the local cache cannot be written.
-    }
+    await writeLocaleCache(detected);
     return detected;
   } catch {
     return translatedFallback();
@@ -255,6 +302,8 @@ function state() {
     tabs: [...tabs.values()].map(publicTab),
     activeTabId,
     locale: localeState,
+    settings: browserData.settings,
+    zoomPercent: Math.round((activeTab()?.view.webContents.getZoomFactor() || 1) * 100),
     bookmarks: browserData.bookmarks,
     activeBookmarked: browserData.bookmarks.some((bookmark) => bookmark.url === activeTab()?.displayUrl)
   };
@@ -290,7 +339,7 @@ function newTabPage(tab) {
 }
 
 function navigateTab(tab, input) {
-  const target = normalizeAddress(input);
+  const target = normalizeAddress(input, browserData.settings.searchEngine);
   if (target === 'barlas://newtab') return newTabPage(tab);
   return tab.view.webContents.loadURL(target);
 }
@@ -444,6 +493,53 @@ function removeBookmark(url) {
   return true;
 }
 
+async function updateSetting(key, value) {
+  if (key === 'searchEngine' && ['google', 'bing', 'duckduckgo'].includes(value)) {
+    browserData.settings.searchEngine = value;
+  } else if (key === 'restoreSession' && typeof value === 'boolean') {
+    browserData.settings.restoreSession = value;
+  } else if (key === 'language') {
+    browserData.settings.language = safeLanguage(value);
+    localeState = await detectLocale(browserData.settings.language);
+  } else {
+    return false;
+  }
+  persistBrowserData();
+  broadcast();
+  return true;
+}
+
+function changeZoom(delta) {
+  const contents = activeTab()?.view.webContents;
+  if (!contents) return;
+  const factor = delta === 0 ? 1 : Math.min(2, Math.max(0.5, contents.getZoomFactor() + delta));
+  contents.setZoomFactor(factor);
+  broadcast();
+}
+
+function showBrowserMenu() {
+  if (!window) return;
+  const template = [
+    { label: mainCopy('newTab'), accelerator: 'CmdOrCtrl+T', click: () => createTab() },
+    { label: mainCopy('bookmarks'), click: () => window.webContents.send('browser:open-bookmarks') },
+    { label: mainCopy('downloads'), click: () => shell.openPath(app.getPath('downloads')) },
+    { type: 'separator' },
+    {
+      label: `${mainCopy('zoom')} (${state().zoomPercent}%)`,
+      submenu: [
+        { label: mainCopy('zoomIn'), accelerator: 'CmdOrCtrl+Plus', click: () => changeZoom(0.1) },
+        { label: mainCopy('zoomOut'), accelerator: 'CmdOrCtrl+-', click: () => changeZoom(-0.1) },
+        { label: mainCopy('zoomReset'), accelerator: 'CmdOrCtrl+0', click: () => changeZoom(0) }
+      ]
+    },
+    { label: mainCopy('fullscreen'), type: 'checkbox', checked: window.isFullScreen(), click: () => window.setFullScreen(!window.isFullScreen()) },
+    { label: mainCopy('settings'), click: () => window.webContents.send('browser:open-settings') },
+    { type: 'separator' },
+    { label: mainCopy('about'), click: () => dialog.showMessageBox(window, { type: 'info', title: 'BARLAS Browser', message: 'BARLAS Browser 0.2.2', detail: `Chromium ${process.versions.chrome}\nElectron ${process.versions.electron}` }) }
+  ];
+  Menu.buildFromTemplate(template).popup({ window });
+}
+
 function installIpc() {
   ipcMain.handle('browser:get-state', () => state());
   ipcMain.handle('browser:new-tab', (_event, url) => createTab(url));
@@ -460,6 +556,9 @@ function installIpc() {
   ipcMain.handle('browser:home', () => activeTab() && navigateTab(activeTab(), 'barlas://newtab'));
   ipcMain.handle('browser:toggle-bookmark', () => toggleBookmark());
   ipcMain.handle('browser:remove-bookmark', (_event, url) => removeBookmark(url));
+  ipcMain.handle('browser:set-setting', (_event, key, value) => updateSetting(key, value));
+  ipcMain.handle('browser:open-downloads', () => shell.openPath(app.getPath('downloads')));
+  ipcMain.handle('browser:show-menu', () => showBrowserMenu());
   ipcMain.on('browser:layout', (_event, value) => {
     if (!value || typeof value !== 'object') return;
     layout = {
@@ -495,7 +594,7 @@ function createWindow() {
   window.on('unmaximize', updateBounds);
   window.webContents.on('before-input-event', (event, input) => handleShortcut(event, input));
   window.webContents.once('did-finish-load', () => {
-    const saved = browserData.session.urls;
+    const saved = browserData.settings.restoreSession ? browserData.session.urls : [];
     if (!saved.length) return createTab();
     restoringSession = true;
     const ids = saved.map((url) => createTab(url, false));
@@ -506,7 +605,8 @@ function createWindow() {
 }
 
 app.whenReady().then(async () => {
-  [localeState, browserData] = await Promise.all([detectLocale(), readBrowserData()]);
+  browserData = await readBrowserData();
+  localeState = await detectLocale(browserData.settings.language);
   const browserSession = session.fromPartition('persist:barlas-browser');
   browserSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
   browserSession.setPermissionCheckHandler(() => false);

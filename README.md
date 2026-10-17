@@ -27,8 +27,11 @@ boundary, and a focused roadmap for everyday browsing.
 - Chromium-compatible browsing in independent tabs
 - Google search directly from the address bar
 - Automatic localization for 251 countries and territories across 79 primary languages
+- Manual language selection including 35 Turkic languages and Mongolian
 - Local bookmarks with a dedicated sidebar
 - Automatic restore of open web tabs after restart
+- Working settings for search engine, interface language, and startup restore
+- Browser menu with downloads, zoom, fullscreen, and version information
 - Back, forward, reload, stop, home, and common keyboard shortcuts
 - Popup links converted into controlled tabs
 - Persistent browser profile and native downloads
@@ -42,7 +45,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.2.1-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.2.2-Windows-x64.exe`, choose an installation
 directory, and complete the setup wizard.
 
 The alpha installer is not yet code-signed, so Windows SmartScreen may identify

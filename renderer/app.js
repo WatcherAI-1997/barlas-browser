@@ -5,6 +5,34 @@ let browserState = { tabs: [], activeTabId: null };
 let language = 'en';
 let translatedCopy = {};
 let bookmarksOpen = false;
+let settingsOpen = false;
+
+const TURKIC_LANGUAGES = [
+  ['tr', 'Türkçe'], ['az', 'Azərbaycanca'], ['kk', 'Қазақша'], ['ky', 'Кыргызча'],
+  ['uz', 'O‘zbekcha'], ['tk', 'Türkmençe'], ['tt', 'Татарча'], ['ba', 'Башҡортса'],
+  ['cv', 'Чӑвашла'], ['sah', 'Саха тыла'], ['ug', 'ئۇيغۇرچە'], ['gag', 'Gagauzça'],
+  ['crh', 'Qırımtatarca'], ['kaa', 'Qaraqalpaqsha'], ['kum', 'Къумукъча'], ['nog', 'Ногайша'],
+  ['krc', 'Къарачай-малкъар'], ['alt', 'Алтай тил'], ['kjh', 'Хакас тілі'], ['tyv', 'Тыва дыл'],
+  ['cjs', 'Шор тили'], ['sty', 'Себер татар теле'], ['slr', 'Салар тили'], ['azb', 'تۆرکجه'],
+  ['kmz', 'Xorasan türkcəsi'], ['qxq', 'Qaşqay dili'], ['ili', 'Ili Türk dili'], ['ybe', 'Sarı Uyğur dili'],
+  ['klj', 'Xələc dili'], ['dlg', 'Дулҕан тыла'], ['kim', 'Тоъфа дыл'], ['clw', 'Ӧс тили'],
+  ['uum', 'Урум тили'], ['ota', 'لسان عثمانى'], ['tuk-IQ', 'Ирак түркмәнчәси']
+];
+
+const WORLD_LANGUAGE_CODES = [
+  'af','ak','am','ar','asa','az','be','bem','bg','bi','bn','bs','ca','cgg','cs','da','de','dv','dz','ebu','el','en','es','et','fa','fi','fo','fr','he','hi','hr','hu','hy','id','is','it','ja','ka','kea','kk','kl','km','ko','ky','lo','lt','lv','mk','mn','ms','my','nb','ne','nl','no','pl','ps','pt','ro','ru','si','sk','sl','sm','so','sq','sr','sv','tg','th','ti','tk','to','tr','uk','uz','vi','zh'
+];
+
+const EXTRA_COPY = {
+  az: { settings: 'Parametrlər', searchEngine: 'Axtarış sistemi', startup: 'Başlanğıc', restoreTabs: 'Yenidən başladıqda açıq tabları bərpa et', language: 'İnterfeys dili', automatic: 'Avtomatik (ölkə və sistem)', languageNote: 'Avtomatik rejim ölkənizi və əməliyyat sisteminin dilini istifadə edir.', downloads: 'Yükləmələr qovluğunu aç', saved: 'Saxlanıldı' },
+  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Open downloads folder', saved: 'Saved' },
+  kk: { settings: 'Баптаулар', searchEngine: 'Іздеу жүйесі', startup: 'Іске қосу', restoreTabs: 'Қайта іске қосқанда ашық беттерді қалпына келтіру', language: 'Интерфейс тілі', automatic: 'Автоматты (ел және жүйе)', languageNote: 'Автоматты режим елді және операциялық жүйе тілін пайдаланады.', downloads: 'Жүктеулер қалтасын ашу', saved: 'Сақталды' },
+  ky: { settings: 'Жөндөөлөр', searchEngine: 'Издөө тутуму', startup: 'Иштетүү', restoreTabs: 'Кайра иштеткенде ачык өтмөктөрдү калыбына келтирүү', language: 'Интерфейс тили', automatic: 'Автоматтык (өлкө жана система)', languageNote: 'Автоматтык режим өлкөнү жана операциялык тутумдун тилин колдонот.', downloads: 'Жүктөөлөр папкасын ачуу', saved: 'Сакталды' },
+  mn: { settings: 'Тохиргоо', searchEngine: 'Хайлтын систем', startup: 'Эхлүүлэх', restoreTabs: 'Дахин эхлүүлэхэд нээлттэй табуудыг сэргээх', language: 'Интерфейсийн хэл', automatic: 'Автомат (улс ба систем)', languageNote: 'Автомат горим улс болон үйлдлийн системийн хэлийг ашиглана.', downloads: 'Таталтын хавтсыг нээх', saved: 'Хадгаллаа' },
+  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Открыть папку загрузок', saved: 'Сохранено' },
+  tr: { settings: 'Ayarlar', searchEngine: 'Arama motoru', startup: 'Başlangıç', restoreTabs: 'Yeniden başlatınca açık sekmeleri geri yükle', language: 'Arayüz dili', automatic: 'Otomatik (ülke ve sistem)', languageNote: 'Otomatik mod ülkenizi ve işletim sistemi dilini kullanır.', downloads: 'İndirilenler klasörünü aç', saved: 'Kaydedildi' },
+  uz: { settings: 'Sozlamalar', searchEngine: 'Qidiruv tizimi', startup: 'Ishga tushirish', restoreTabs: 'Qayta ishga tushganda ochiq varaqlarni tiklash', language: 'Interfeys tili', automatic: 'Avtomatik (mamlakat va tizim)', languageNote: 'Avtomatik rejim mamlakat va operatsion tizim tilidan foydalanadi.', downloads: 'Yuklamalar jildini ochish', saved: 'Saqlandi' }
+};
 
 const BOOKMARK_COPY = {
   az: { bookmarks: 'Əlfəcinlər', addBookmark: 'Əlfəcinlərə əlavə et', removeBookmark: 'Əlfəcini sil', emptyBookmarks: 'Hələ saxlanmış səhifə yoxdur', close: 'Bağla' },
@@ -30,12 +58,27 @@ const COPY = {
 
 function t(key) {
   if (translatedCopy[key]) return translatedCopy[key];
-  return (COPY[language] || COPY.en)[key];
+  return EXTRA_COPY[language]?.[key] || COPY[language]?.[key] || EXTRA_COPY.en[key] || COPY.en[key] || key;
 }
 
 function bt(key) {
   if (translatedCopy[key]) return translatedCopy[key];
-  return (BOOKMARK_COPY[language] || BOOKMARK_COPY.en)[key];
+  return BOOKMARK_COPY[language]?.[key] || BOOKMARK_COPY.en[key] || key;
+}
+
+function populateLanguages() {
+  const select = $('#interface-language');
+  if (select.options.length) return;
+  select.add(new Option(t('automatic'), 'auto'));
+  let displayNames;
+  try { displayNames = new Intl.DisplayNames([language], { type: 'language' }); } catch { displayNames = null; }
+  const priority = new Map(TURKIC_LANGUAGES);
+  priority.set('mn', 'Монгол хэл');
+  const codes = [...new Set([...priority.keys(), ...WORLD_LANGUAGE_CODES])];
+  for (const code of codes) {
+    const label = priority.get(code) || displayNames?.of(code.split('-')[0]) || code;
+    select.add(new Option(`${label} — ${code}`, code));
+  }
 }
 
 function applyLocale(locale) {
@@ -53,8 +96,17 @@ function applyLocale(locale) {
   $('#bookmarks-title').textContent = bt('bookmarks');
   $('#bookmarks-empty').textContent = bt('emptyBookmarks');
   $('#close-bookmarks').ariaLabel = bt('close');
-  $('#settings').title = t('privacySettings');
-  $('#settings').ariaLabel = t('privacySettings');
+  $('#settings').title = t('settings');
+  $('#settings').ariaLabel = t('settings');
+  $('#settings-panel').ariaLabel = t('settings');
+  $('#settings-title').textContent = t('settings');
+  $('#close-settings').ariaLabel = bt('close');
+  $('#search-engine-label').textContent = t('searchEngine');
+  $('#language-label').textContent = t('language');
+  $('#language-note').textContent = t('languageNote');
+  $('#startup-label').textContent = t('startup');
+  $('#restore-session-label').textContent = t('restoreTabs');
+  $('#open-downloads').textContent = t('downloads');
   $('.toolbar').ariaLabel = t('navigation');
   for (const [id, key] of [['back', 'back'], ['forward', 'forward'], ['menu', 'menu']]) {
     $("#" + id).title = t(key);
@@ -64,6 +116,8 @@ function applyLocale(locale) {
   address.ariaLabel = t('address');
   address.placeholder = t('addressPlaceholder');
   $('#go').ariaLabel = t('go');
+  const automatic = $('#interface-language option[value="auto"]');
+  if (automatic) automatic.textContent = t('automatic');
 }
 
 function renderBookmarks() {
@@ -150,6 +204,10 @@ function render(state) {
   applyLocale(state.locale);
   renderTabs();
   renderBookmarks();
+  populateLanguages();
+  $('#search-engine').value = state.settings?.searchEngine || 'google';
+  $('#restore-session').checked = state.settings?.restoreSession !== false;
+  $('#interface-language').value = state.settings?.language || 'auto';
   const tab = activeTab();
   if (document.activeElement !== address) address.value = tab?.url || '';
   $('#back').disabled = !tab?.canGoBack;
@@ -166,14 +224,28 @@ function render(state) {
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: bookmarksOpen ? 358 : 58, y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: settingsOpen ? 418 : (bookmarksOpen ? 358 : 58), y: 102, right: 0, bottom: 0 });
 }
 
 function setBookmarksOpen(open) {
   bookmarksOpen = open;
+  if (open) settingsOpen = false;
   $('#bookmarks-panel').hidden = !open;
+  $('#settings-panel').hidden = true;
   $('#bookmarks').classList.toggle('active', open);
-  $('#home').classList.toggle('active', !open);
+  $('#settings').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !settingsOpen);
+  requestLayout();
+}
+
+function setSettingsOpen(open) {
+  settingsOpen = open;
+  if (open) bookmarksOpen = false;
+  $('#settings-panel').hidden = !open;
+  $('#bookmarks-panel').hidden = true;
+  $('#settings').classList.toggle('active', open);
+  $('#bookmarks').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !bookmarksOpen);
   requestLayout();
 }
 
@@ -187,12 +259,26 @@ $('#new-tab').addEventListener('click', () => window.barlas.newTab());
 $('#home').addEventListener('click', () => window.barlas.newTab());
 $('#bookmarks').addEventListener('click', () => setBookmarksOpen(!bookmarksOpen));
 $('#close-bookmarks').addEventListener('click', () => setBookmarksOpen(false));
+$('#close-settings').addEventListener('click', () => setSettingsOpen(false));
 $('#bookmark-page').addEventListener('click', () => window.barlas.toggleBookmark());
 $('#back').addEventListener('click', () => window.barlas.back());
 $('#forward').addEventListener('click', () => window.barlas.forward());
 $('#reload').addEventListener('click', () => activeTab()?.loading ? window.barlas.stop() : window.barlas.reload());
-$('#settings').addEventListener('click', () => showToast(t('settingsSoon')));
-$('#menu').addEventListener('click', () => showToast('BARLAS Browser 0.1 · Chromium'));
+$('#settings').addEventListener('click', () => setSettingsOpen(!settingsOpen));
+$('#menu').addEventListener('click', () => window.barlas.showMenu());
+$('#search-engine').addEventListener('change', async (event) => {
+  await window.barlas.setSetting('searchEngine', event.target.value);
+  showToast(t('saved'));
+});
+$('#restore-session').addEventListener('change', async (event) => {
+  await window.barlas.setSetting('restoreSession', event.target.checked);
+  showToast(t('saved'));
+});
+$('#interface-language').addEventListener('change', async (event) => {
+  await window.barlas.setSetting('language', event.target.value);
+  showToast(t('saved'));
+});
+$('#open-downloads').addEventListener('click', () => window.barlas.openDownloads());
 window.addEventListener('resize', requestLayout);
 
 let toastTimer;
@@ -209,4 +295,6 @@ window.barlas.onFind(() => {
   address.focus();
   address.select();
 });
+window.barlas.onOpenBookmarks(() => setBookmarksOpen(true));
+window.barlas.onOpenSettings(() => setSettingsOpen(true));
 window.barlas.getState().then(render);

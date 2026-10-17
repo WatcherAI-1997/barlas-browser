@@ -22,4 +22,14 @@ test('sanitizes bookmarks, removes duplicates and clamps session index', () => {
   assert.deepEqual(data.bookmarks, [{ title: 'Example', url: 'https://example.com/' }]);
   assert.deepEqual(data.session.urls, ['https://one.example/', 'https://two.example/']);
   assert.equal(data.session.activeIndex, 1);
+  assert.deepEqual(data.settings, { searchEngine: 'google', restoreSession: true, language: 'auto' });
+});
+
+test('sanitizes persistent browser settings', () => {
+  assert.deepEqual(sanitizeBrowserData({ settings: {
+    searchEngine: 'duckduckgo', restoreSession: false, language: 'sah'
+  }}).settings, { searchEngine: 'duckduckgo', restoreSession: false, language: 'sah' });
+  assert.deepEqual(sanitizeBrowserData({ settings: {
+    searchEngine: 'evil', restoreSession: 'no', language: '../../bad'
+  }}).settings, { searchEngine: 'google', restoreSession: true, language: 'auto' });
 });

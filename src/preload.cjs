@@ -15,6 +15,9 @@ contextBridge.exposeInMainWorld('barlas', {
   home: () => ipcRenderer.invoke('browser:home'),
   toggleBookmark: () => ipcRenderer.invoke('browser:toggle-bookmark'),
   removeBookmark: (url) => ipcRenderer.invoke('browser:remove-bookmark', url),
+  setSetting: (key, value) => ipcRenderer.invoke('browser:set-setting', key, value),
+  openDownloads: () => ipcRenderer.invoke('browser:open-downloads'),
+  showMenu: () => ipcRenderer.invoke('browser:show-menu'),
   reportLayout: (layout) => ipcRenderer.send('browser:layout', layout),
   onState: (callback) => {
     const handler = (_event, state) => callback(state);
@@ -25,5 +28,15 @@ contextBridge.exposeInMainWorld('barlas', {
     const handler = () => callback();
     ipcRenderer.on('browser:find', handler);
     return () => ipcRenderer.removeListener('browser:find', handler);
+  },
+  onOpenBookmarks: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('browser:open-bookmarks', handler);
+    return () => ipcRenderer.removeListener('browser:open-bookmarks', handler);
+  },
+  onOpenSettings: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('browser:open-settings', handler);
+    return () => ipcRenderer.removeListener('browser:open-settings', handler);
   }
 });
