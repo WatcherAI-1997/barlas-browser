@@ -29,6 +29,7 @@ boundary, and a focused roadmap for everyday browsing.
 - Automatic localization for 251 countries and territories across 79 primary languages
 - Manual language selection including 35 Turkic languages and Mongolian
 - Local bookmarks with a dedicated sidebar
+- Browsing history with search, individual removal, full clearing, and `Ctrl+H`
 - Automatic restore of open web tabs after restart
 - Working settings for search engine, interface language, and startup restore
 - Browser menu with downloads, zoom, fullscreen, and version information
@@ -45,7 +46,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.2.3-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.2.4-Windows-x64.exe`, choose an installation
 directory, and complete the setup wizard.
 
 The alpha installer is not yet code-signed, so Windows SmartScreen may identify
@@ -103,12 +104,13 @@ shell. More detail is available in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `Ctrl/Cmd + W` | Close the current tab |
 | `Ctrl/Cmd + R` | Reload the current page |
 | `Ctrl/Cmd + D` | Add or remove the current bookmark |
+| `Ctrl/Cmd + H` | Open browsing history |
 | `Alt + Left/Right` | Navigate through page history |
 
 ## Project status
 
-Version `0.2.x` adds the first daily-browsing features. History, closed-tab
-restore, workspaces, tab groups, per-site permissions, content blocking, and
+Version `0.2.x` adds the first daily-browsing features. Closed-tab restore,
+workspaces, tab groups, per-site permissions, content blocking, and
 signed installers are tracked in the [roadmap](docs/ROADMAP.md).
 
 ## Contributing

@@ -38,6 +38,14 @@ const EN_INTERFACE_COPY = Object.freeze({
   go: 'Go',
   menu: 'Menu',
   bookmarks: 'Bookmarks',
+  history: 'History',
+  searchHistory: 'Search history',
+  clearHistory: 'Clear browsing history',
+  clearHistoryQuestion: 'Delete all browsing history?',
+  emptyHistory: 'No browsing history yet',
+  removeHistory: 'Remove from history',
+  cancel: 'Cancel',
+  clear: 'Clear',
   addBookmark: 'Add bookmark',
   removeBookmark: 'Remove bookmark',
   emptyBookmarks: 'No saved pages yet',
@@ -59,17 +67,17 @@ const EN_INTERFACE_COPY = Object.freeze({
 });
 
 const MAIN_UI_COPY = {
-  az: { bookmarks: 'Əlfəcinlər', downloads: 'Yükləmələr', zoom: 'Miqyas', zoomIn: 'Böyüt', zoomOut: 'Kiçilt', zoomReset: 'Miqyası sıfırla', fullscreen: 'Tam ekran', settings: 'Parametrlər', about: 'BARLAS Browser haqqında' },
-  kk: { bookmarks: 'Бетбелгілер', downloads: 'Жүктеулер', zoom: 'Масштаб', zoomIn: 'Үлкейту', zoomOut: 'Кішірейту', zoomReset: 'Масштабты қалпына келтіру', fullscreen: 'Толық экран', settings: 'Баптаулар', about: 'BARLAS Browser туралы' },
-  ky: { bookmarks: 'Кыстармалар', downloads: 'Жүктөөлөр', zoom: 'Масштаб', zoomIn: 'Чоңойтуу', zoomOut: 'Кичирейтүү', zoomReset: 'Масштабды баштапкы абалга келтирүү', fullscreen: 'Толук экран', settings: 'Жөндөөлөр', about: 'BARLAS Browser жөнүндө' },
-  mn: { bookmarks: 'Хавчуурга', downloads: 'Таталтууд', zoom: 'Томруулалт', zoomIn: 'Томруулах', zoomOut: 'Жижигрүүлэх', zoomReset: 'Томруулалтыг сэргээх', fullscreen: 'Дэлгэц дүүрэн', settings: 'Тохиргоо', about: 'BARLAS Browser-ийн тухай' },
+  az: { bookmarks: 'Əlfəcinlər', history: 'Tarixçə', downloads: 'Yükləmələr', zoom: 'Miqyas', zoomIn: 'Böyüt', zoomOut: 'Kiçilt', zoomReset: 'Miqyası sıfırla', fullscreen: 'Tam ekran', settings: 'Parametrlər', about: 'BARLAS Browser haqqında' },
+  kk: { bookmarks: 'Бетбелгілер', history: 'Тарих', downloads: 'Жүктеулер', zoom: 'Масштаб', zoomIn: 'Үлкейту', zoomOut: 'Кішірейту', zoomReset: 'Масштабты қалпына келтіру', fullscreen: 'Толық экран', settings: 'Баптаулар', about: 'BARLAS Browser туралы' },
+  ky: { bookmarks: 'Кыстармалар', history: 'Тарых', downloads: 'Жүктөөлөр', zoom: 'Масштаб', zoomIn: 'Чоңойтуу', zoomOut: 'Кичирейтүү', zoomReset: 'Масштабды баштапкы абалга келтирүү', fullscreen: 'Толук экран', settings: 'Жөндөөлөр', about: 'BARLAS Browser жөнүндө' },
+  mn: { bookmarks: 'Хавчуурга', history: 'Түүх', downloads: 'Таталтууд', zoom: 'Томруулалт', zoomIn: 'Томруулах', zoomOut: 'Жижигрүүлэх', zoomReset: 'Томруулалтыг сэргээх', fullscreen: 'Дэлгэц дүүрэн', settings: 'Тохиргоо', about: 'BARLAS Browser-ийн тухай' },
   ru: {
-    bookmarks: 'Закладки', downloads: 'Загрузки', zoom: 'Масштаб', zoomIn: 'Увеличить',
+    bookmarks: 'Закладки', history: 'История', clearHistoryQuestion: 'Удалить всю историю посещений?', cancel: 'Отмена', clear: 'Очистить', downloads: 'Загрузки', zoom: 'Масштаб', zoomIn: 'Увеличить',
     zoomOut: 'Уменьшить', zoomReset: 'Сбросить масштаб', fullscreen: 'Полноэкранный режим',
     settings: 'Настройки', about: 'О BARLAS Browser'
   },
-  tr: { bookmarks: 'Yer imleri', downloads: 'İndirilenler', zoom: 'Yakınlaştırma', zoomIn: 'Yakınlaştır', zoomOut: 'Uzaklaştır', zoomReset: 'Yakınlaştırmayı sıfırla', fullscreen: 'Tam ekran', settings: 'Ayarlar', about: 'BARLAS Browser hakkında' },
-  uz: { bookmarks: 'Xatcho‘plar', downloads: 'Yuklamalar', zoom: 'Masshtab', zoomIn: 'Kattalashtirish', zoomOut: 'Kichraytirish', zoomReset: 'Masshtabni tiklash', fullscreen: 'To‘liq ekran', settings: 'Sozlamalar', about: 'BARLAS Browser haqida' }
+  tr: { bookmarks: 'Yer imleri', history: 'Geçmiş', downloads: 'İndirilenler', zoom: 'Yakınlaştırma', zoomIn: 'Yakınlaştır', zoomOut: 'Uzaklaştır', zoomReset: 'Yakınlaştırmayı sıfırla', fullscreen: 'Tam ekran', settings: 'Ayarlar', about: 'BARLAS Browser hakkında' },
+  uz: { bookmarks: 'Xatcho‘plar', history: 'Tarix', downloads: 'Yuklamalar', zoom: 'Masshtab', zoomIn: 'Kattalashtirish', zoomOut: 'Kichraytirish', zoomReset: 'Masshtabni tiklash', fullscreen: 'To‘liq ekran', settings: 'Sozlamalar', about: 'BARLAS Browser haqida' }
 };
 
 const NEW_TAB_COPY = {
@@ -241,7 +249,8 @@ async function detectLocale(preferredLanguage = 'auto') {
   const requestedLanguage = safeLanguage(preferredLanguage);
   const cached = await readCachedLocale(requestedLanguage);
   if (cached) {
-    if (BUNDLED_LANGUAGES.has(baseLanguage(cached.language)) || Object.keys(cached.messages).length) return cached;
+    const completeTranslation = Object.keys(EN_INTERFACE_COPY).every((key) => cached.messages[key]);
+    if (BUNDLED_LANGUAGES.has(baseLanguage(cached.language)) || completeTranslation) return cached;
     const translated = { ...cached, messages: await translateInterface(cached.language) };
     await writeLocaleCache(translated);
     return translated;
@@ -306,6 +315,7 @@ function state() {
     settings: browserData.settings,
     zoomPercent: Math.round((activeTab()?.view.webContents.getZoomFactor() || 1) * 100),
     bookmarks: browserData.bookmarks,
+    history: browserData.history,
     activeBookmarked: browserData.bookmarks.some((bookmark) => bookmark.url === activeTab()?.displayUrl)
   };
 }
@@ -374,6 +384,7 @@ function wireTab(tab) {
     tab.loading = false;
     const current = contents.getURL();
     tab.displayUrl = current.startsWith('data:') ? '' : current;
+    recordHistory(tab);
     persistBrowserData();
     broadcast();
   });
@@ -392,6 +403,19 @@ function wireTab(tab) {
     tab.loading = false;
     broadcast();
   });
+}
+
+function recordHistory(tab) {
+  if (!tab || !/^https?:\/\//.test(tab.displayUrl)) return;
+  const now = Date.now();
+  const latest = browserData.history[0];
+  if (latest?.url === tab.displayUrl && now - latest.visitedAt < 10_000) {
+    latest.title = tab.title || tab.displayUrl;
+    latest.visitedAt = now;
+  } else {
+    browserData.history.unshift({ title: tab.title || tab.displayUrl, url: tab.displayUrl, visitedAt: now });
+  }
+  browserData.history = browserData.history.slice(0, 5000);
 }
 
 function handleShortcut(event, input) {
@@ -413,6 +437,10 @@ function handleShortcut(event, input) {
   } else if (command && key === 'd') {
     event.preventDefault();
     toggleBookmark();
+  } else if (command && key === 'h') {
+    event.preventDefault();
+    window.webContents.focus();
+    window.webContents.send('browser:open-history');
   } else if (input.alt && input.key === 'ArrowLeft') {
     event.preventDefault();
     if (activeTab()?.view.webContents.canGoBack()) activeTab().view.webContents.goBack();
@@ -494,6 +522,34 @@ function removeBookmark(url) {
   return true;
 }
 
+function removeHistoryEntry(visitedAt) {
+  const timestamp = Number(visitedAt);
+  const before = browserData.history.length;
+  browserData.history = browserData.history.filter((entry) => entry.visitedAt !== timestamp);
+  if (browserData.history.length === before) return false;
+  persistBrowserData();
+  broadcast();
+  return true;
+}
+
+async function clearHistory() {
+  if (!browserData.history.length || !window) return false;
+  const result = await dialog.showMessageBox(window, {
+    type: 'warning',
+    title: mainCopy('clearHistory'),
+    message: mainCopy('clearHistoryQuestion'),
+    buttons: [mainCopy('cancel'), mainCopy('clear')],
+    defaultId: 0,
+    cancelId: 0,
+    noLink: true
+  });
+  if (result.response !== 1) return false;
+  browserData.history = [];
+  persistBrowserData();
+  broadcast();
+  return true;
+}
+
 async function updateSetting(key, value) {
   if (key === 'searchEngine' && ['google', 'bing', 'duckduckgo'].includes(value)) {
     browserData.settings.searchEngine = value;
@@ -523,6 +579,7 @@ function showBrowserMenu() {
   const template = [
     { label: mainCopy('newTab'), accelerator: 'CmdOrCtrl+T', click: () => createTab() },
     { label: mainCopy('bookmarks'), click: () => window.webContents.send('browser:open-bookmarks') },
+    { label: mainCopy('history'), accelerator: 'CmdOrCtrl+H', click: () => window.webContents.send('browser:open-history') },
     { label: mainCopy('downloads'), click: () => shell.openPath(app.getPath('downloads')) },
     { type: 'separator' },
     {
@@ -557,6 +614,8 @@ function installIpc() {
   ipcMain.handle('browser:home', () => activeTab() && navigateTab(activeTab(), 'barlas://newtab'));
   ipcMain.handle('browser:toggle-bookmark', () => toggleBookmark());
   ipcMain.handle('browser:remove-bookmark', (_event, url) => removeBookmark(url));
+  ipcMain.handle('browser:remove-history-entry', (_event, visitedAt) => removeHistoryEntry(visitedAt));
+  ipcMain.handle('browser:clear-history', () => clearHistory());
   ipcMain.handle('browser:set-setting', (_event, key, value) => updateSetting(key, value));
   ipcMain.handle('browser:open-downloads', () => shell.openPath(app.getPath('downloads')));
   ipcMain.handle('browser:show-menu', () => showBrowserMenu());

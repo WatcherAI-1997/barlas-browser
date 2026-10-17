@@ -20,6 +20,7 @@ function safeWebUrl(value) {
 function sanitizeBrowserData(value) {
   const input = value && typeof value === 'object' ? value : {};
   const bookmarks = Array.isArray(input.bookmarks) ? input.bookmarks : [];
+  const history = Array.isArray(input.history) ? input.history : [];
   const session = input.session && typeof input.session === 'object' ? input.session : {};
   const settings = input.settings && typeof input.settings === 'object' ? input.settings : {};
   const urls = Array.isArray(session.urls) ? session.urls.map(safeWebUrl).filter(Boolean).slice(0, 50) : [];
@@ -33,6 +34,15 @@ function sanitizeBrowserData(value) {
       .filter((bookmark) => bookmark.url)
       .filter((bookmark, index, all) => all.findIndex((item) => item.url === bookmark.url) === index)
       .slice(0, 500),
+    history: history
+      .map((entry) => ({
+        title: String(entry?.title || '').trim().slice(0, 200),
+        url: safeWebUrl(entry?.url),
+        visitedAt: Number(entry?.visitedAt)
+      }))
+      .filter((entry) => entry.url && Number.isFinite(entry.visitedAt) && entry.visitedAt > 0)
+      .sort((left, right) => right.visitedAt - left.visitedAt)
+      .slice(0, 5000),
     session: {
       urls,
       activeIndex: urls.length ? Math.min(Math.max(Number.parseInt(session.activeIndex, 10) || 0, 0), urls.length - 1) : 0

@@ -18,6 +18,7 @@
     <aside class="rail" aria-label="Боковая панель">
       <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка">⌂</button>
       <button id="bookmarks" class="rail-button" title="Закладки" aria-label="Закладки">★</button>
+      <button id="history" class="rail-button" title="История" aria-label="История">◷</button>
       <div class="rail-spacer"></div>
       <button id="settings" class="rail-button" title="Настройки" aria-label="Настройки">⚙</button>
     </aside>
@@ -42,6 +43,17 @@
       </div>
       <div id="bookmarks-empty" class="panel-empty">Сохранённых страниц пока нет</div>
       <div id="bookmarks-list" class="bookmark-list"></div>
+    </section>
+
+    <section id="history-panel" class="side-panel history-panel" aria-label="История" hidden>
+      <div class="panel-heading">
+        <h2 id="history-title">История</h2>
+        <button id="close-history" class="panel-close" aria-label="Закрыть">×</button>
+      </div>
+      <input id="history-search" class="panel-search" type="search" autocomplete="off" placeholder="Поиск в истории" aria-label="Поиск в истории" />
+      <button id="clear-history" class="clear-history" type="button">Очистить историю</button>
+      <div id="history-empty" class="panel-empty">История пока пуста</div>
+      <div id="history-list" class="history-list"></div>
     </section>
 
     <section id="settings-panel" class="side-panel settings-panel" aria-label="Настройки" hidden>

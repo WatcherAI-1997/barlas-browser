@@ -15,7 +15,7 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [x] Local bookmarks
 - [x] Worldwide country and system-language localization
 - [ ] Bookmark import
-- [ ] Searchable browsing history
+- [x] Searchable browsing history
 - [x] Open-session restore
 - [ ] Closed-tab restore
 - [ ] Download manager

@@ -5,6 +5,7 @@ let browserState = { tabs: [], activeTabId: null };
 let language = 'en';
 let translatedCopy = {};
 let bookmarksOpen = false;
+let historyOpen = false;
 let settingsOpen = false;
 
 const TURKIC_LANGUAGES = [
@@ -24,14 +25,14 @@ const WORLD_LANGUAGE_CODES = [
 ];
 
 const EXTRA_COPY = {
-  az: { settings: 'Parametrlər', searchEngine: 'Axtarış sistemi', startup: 'Başlanğıc', restoreTabs: 'Yenidən başladıqda açıq tabları bərpa et', language: 'İnterfeys dili', automatic: 'Avtomatik (ölkə və sistem)', languageNote: 'Avtomatik rejim ölkənizi və əməliyyat sisteminin dilini istifadə edir.', downloads: 'Yükləmələr qovluğunu aç', saved: 'Saxlanıldı' },
-  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Open downloads folder', saved: 'Saved' },
-  kk: { settings: 'Баптаулар', searchEngine: 'Іздеу жүйесі', startup: 'Іске қосу', restoreTabs: 'Қайта іске қосқанда ашық беттерді қалпына келтіру', language: 'Интерфейс тілі', automatic: 'Автоматты (ел және жүйе)', languageNote: 'Автоматты режим елді және операциялық жүйе тілін пайдаланады.', downloads: 'Жүктеулер қалтасын ашу', saved: 'Сақталды' },
-  ky: { settings: 'Жөндөөлөр', searchEngine: 'Издөө тутуму', startup: 'Иштетүү', restoreTabs: 'Кайра иштеткенде ачык өтмөктөрдү калыбына келтирүү', language: 'Интерфейс тили', automatic: 'Автоматтык (өлкө жана система)', languageNote: 'Автоматтык режим өлкөнү жана операциялык тутумдун тилин колдонот.', downloads: 'Жүктөөлөр папкасын ачуу', saved: 'Сакталды' },
-  mn: { settings: 'Тохиргоо', searchEngine: 'Хайлтын систем', startup: 'Эхлүүлэх', restoreTabs: 'Дахин эхлүүлэхэд нээлттэй табуудыг сэргээх', language: 'Интерфейсийн хэл', automatic: 'Автомат (улс ба систем)', languageNote: 'Автомат горим улс болон үйлдлийн системийн хэлийг ашиглана.', downloads: 'Таталтын хавтсыг нээх', saved: 'Хадгаллаа' },
-  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Открыть папку загрузок', saved: 'Сохранено' },
-  tr: { settings: 'Ayarlar', searchEngine: 'Arama motoru', startup: 'Başlangıç', restoreTabs: 'Yeniden başlatınca açık sekmeleri geri yükle', language: 'Arayüz dili', automatic: 'Otomatik (ülke ve sistem)', languageNote: 'Otomatik mod ülkenizi ve işletim sistemi dilini kullanır.', downloads: 'İndirilenler klasörünü aç', saved: 'Kaydedildi' },
-  uz: { settings: 'Sozlamalar', searchEngine: 'Qidiruv tizimi', startup: 'Ishga tushirish', restoreTabs: 'Qayta ishga tushganda ochiq varaqlarni tiklash', language: 'Interfeys tili', automatic: 'Avtomatik (mamlakat va tizim)', languageNote: 'Avtomatik rejim mamlakat va operatsion tizim tilidan foydalanadi.', downloads: 'Yuklamalar jildini ochish', saved: 'Saqlandi' }
+  az: { settings: 'Parametrlər', searchEngine: 'Axtarış sistemi', startup: 'Başlanğıc', restoreTabs: 'Yenidən başladıqda açıq tabları bərpa et', language: 'İnterfeys dili', automatic: 'Avtomatik (ölkə və sistem)', languageNote: 'Avtomatik rejim ölkənizi və əməliyyat sisteminin dilini istifadə edir.', downloads: 'Yükləmələr qovluğunu aç', saved: 'Saxlanıldı', history: 'Tarixçə', searchHistory: 'Tarixçədə axtar', clearHistory: 'Tarixçəni təmizlə', emptyHistory: 'Tarixçə hələ boşdur', removeHistory: 'Tarixçədən sil' },
+  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Open downloads folder', saved: 'Saved', history: 'History', searchHistory: 'Search history', clearHistory: 'Clear browsing history', emptyHistory: 'No browsing history yet', removeHistory: 'Remove from history' },
+  kk: { settings: 'Баптаулар', searchEngine: 'Іздеу жүйесі', startup: 'Іске қосу', restoreTabs: 'Қайта іске қосқанда ашық беттерді қалпына келтіру', language: 'Интерфейс тілі', automatic: 'Автоматты (ел және жүйе)', languageNote: 'Автоматты режим елді және операциялық жүйе тілін пайдаланады.', downloads: 'Жүктеулер қалтасын ашу', saved: 'Сақталды', history: 'Тарих', searchHistory: 'Тарихтан іздеу', clearHistory: 'Тарихты тазалау', emptyHistory: 'Тарих әзірге бос', removeHistory: 'Тарихтан жою' },
+  ky: { settings: 'Жөндөөлөр', searchEngine: 'Издөө тутуму', startup: 'Иштетүү', restoreTabs: 'Кайра иштеткенде ачык өтмөктөрдү калыбына келтирүү', language: 'Интерфейс тили', automatic: 'Автоматтык (өлкө жана система)', languageNote: 'Автоматтык режим өлкөнү жана операциялык тутумдун тилин колдонот.', downloads: 'Жүктөөлөр папкасын ачуу', saved: 'Сакталды', history: 'Тарых', searchHistory: 'Тарыхтан издөө', clearHistory: 'Тарыхты тазалоо', emptyHistory: 'Тарых азырынча бош', removeHistory: 'Тарыхтан өчүрүү' },
+  mn: { settings: 'Тохиргоо', searchEngine: 'Хайлтын систем', startup: 'Эхлүүлэх', restoreTabs: 'Дахин эхлүүлэхэд нээлттэй табуудыг сэргээх', language: 'Интерфейсийн хэл', automatic: 'Автомат (улс ба систем)', languageNote: 'Автомат горим улс болон үйлдлийн системийн хэлийг ашиглана.', downloads: 'Таталтын хавтсыг нээх', saved: 'Хадгаллаа', history: 'Түүх', searchHistory: 'Түүхээс хайх', clearHistory: 'Түүхийг арилгах', emptyHistory: 'Түүх хоосон байна', removeHistory: 'Түүхээс устгах' },
+  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Открыть папку загрузок', saved: 'Сохранено', history: 'История', searchHistory: 'Поиск в истории', clearHistory: 'Очистить историю', emptyHistory: 'История пока пуста', removeHistory: 'Удалить из истории' },
+  tr: { settings: 'Ayarlar', searchEngine: 'Arama motoru', startup: 'Başlangıç', restoreTabs: 'Yeniden başlatınca açık sekmeleri geri yükle', language: 'Arayüz dili', automatic: 'Otomatik (ülke ve sistem)', languageNote: 'Otomatik mod ülkenizi ve işletim sistemi dilini kullanır.', downloads: 'İndirilenler klasörünü aç', saved: 'Kaydedildi', history: 'Geçmiş', searchHistory: 'Geçmişte ara', clearHistory: 'Geçmişi temizle', emptyHistory: 'Geçmiş henüz boş', removeHistory: 'Geçmişten kaldır' },
+  uz: { settings: 'Sozlamalar', searchEngine: 'Qidiruv tizimi', startup: 'Ishga tushirish', restoreTabs: 'Qayta ishga tushganda ochiq varaqlarni tiklash', language: 'Interfeys tili', automatic: 'Avtomatik (mamlakat va tizim)', languageNote: 'Avtomatik rejim mamlakat va operatsion tizim tilidan foydalanadi.', downloads: 'Yuklamalar jildini ochish', saved: 'Saqlandi', history: 'Tarix', searchHistory: 'Tarixdan qidirish', clearHistory: 'Tarixni tozalash', emptyHistory: 'Tarix hozircha bo‘sh', removeHistory: 'Tarixdan o‘chirish' }
 };
 
 const BOOKMARK_COPY = {
@@ -96,6 +97,15 @@ function applyLocale(locale) {
   $('#bookmarks-title').textContent = bt('bookmarks');
   $('#bookmarks-empty').textContent = bt('emptyBookmarks');
   $('#close-bookmarks').ariaLabel = bt('close');
+  $('#history').title = t('history');
+  $('#history').ariaLabel = t('history');
+  $('#history-panel').ariaLabel = t('history');
+  $('#history-title').textContent = t('history');
+  $('#history-search').placeholder = t('searchHistory');
+  $('#history-search').ariaLabel = t('searchHistory');
+  $('#clear-history').textContent = t('clearHistory');
+  $('#history-empty').textContent = t('emptyHistory');
+  $('#close-history').ariaLabel = bt('close');
   $('#settings').title = t('settings');
   $('#settings').ariaLabel = t('settings');
   $('#settings-panel').ariaLabel = t('settings');
@@ -118,6 +128,46 @@ function applyLocale(locale) {
   $('#go').ariaLabel = t('go');
   const automatic = $('#interface-language option[value="auto"]');
   if (automatic) automatic.textContent = t('automatic');
+}
+
+function renderHistory() {
+  const list = $('#history-list');
+  list.replaceChildren();
+  const query = $('#history-search').value.trim().toLocaleLowerCase(language);
+  const entries = (browserState.history || []).filter((entry) => {
+    if (!query) return true;
+    return `${entry.title || ''}\n${entry.url}`.toLocaleLowerCase(language).includes(query);
+  });
+  $('#history-empty').hidden = entries.length > 0;
+  $('#history-empty').textContent = (browserState.history || []).length ? t('searchHistory') : t('emptyHistory');
+  for (const entry of entries) {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    const time = document.createElement('span');
+    time.className = 'history-time';
+    time.textContent = new Intl.DateTimeFormat(language, { hour: '2-digit', minute: '2-digit' }).format(entry.visitedAt);
+    const link = document.createElement('button');
+    link.className = 'history-link';
+    const title = document.createElement('span');
+    title.className = 'history-title';
+    title.textContent = entry.title || entry.url;
+    const url = document.createElement('span');
+    url.className = 'history-url';
+    url.textContent = entry.url;
+    link.append(title, url);
+    link.addEventListener('click', () => {
+      window.barlas.navigate(entry.url);
+      setHistoryOpen(false);
+    });
+    const remove = document.createElement('button');
+    remove.className = 'bookmark-remove';
+    remove.textContent = '×';
+    remove.title = t('removeHistory');
+    remove.ariaLabel = t('removeHistory');
+    remove.addEventListener('click', () => window.barlas.removeHistoryEntry(entry.visitedAt));
+    item.append(time, link, remove);
+    list.append(item);
+  }
 }
 
 function renderBookmarks() {
@@ -204,6 +254,7 @@ function render(state) {
   applyLocale(state.locale);
   renderTabs();
   renderBookmarks();
+  renderHistory();
   populateLanguages();
   $('#search-engine').value = state.settings?.searchEngine || 'google';
   $('#restore-session').checked = state.settings?.restoreSession !== false;
@@ -225,28 +276,46 @@ function render(state) {
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: settingsOpen ? 418 : (bookmarksOpen ? 358 : 58), y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: settingsOpen ? 418 : (historyOpen ? 438 : (bookmarksOpen ? 358 : 58)), y: 102, right: 0, bottom: 0 });
 }
 
 function setBookmarksOpen(open) {
   bookmarksOpen = open;
-  if (open) settingsOpen = false;
+  if (open) { settingsOpen = false; historyOpen = false; }
   $('#bookmarks-panel').hidden = !open;
   $('#settings-panel').hidden = true;
+  $('#history-panel').hidden = true;
   $('#bookmarks').classList.toggle('active', open);
   $('#settings').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !settingsOpen);
+  $('#history').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !settingsOpen && !historyOpen);
   requestLayout();
+}
+
+function setHistoryOpen(open) {
+  historyOpen = open;
+  if (open) { bookmarksOpen = false; settingsOpen = false; }
+  $('#history-panel').hidden = !open;
+  $('#bookmarks-panel').hidden = true;
+  $('#settings-panel').hidden = true;
+  $('#history').classList.toggle('active', open);
+  $('#bookmarks').classList.remove('active');
+  $('#settings').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !settingsOpen && !bookmarksOpen);
+  requestLayout();
+  if (open) $('#history-search').focus();
 }
 
 function setSettingsOpen(open) {
   settingsOpen = open;
-  if (open) bookmarksOpen = false;
+  if (open) { bookmarksOpen = false; historyOpen = false; }
   $('#settings-panel').hidden = !open;
   $('#bookmarks-panel').hidden = true;
+  $('#history-panel').hidden = true;
   $('#settings').classList.toggle('active', open);
   $('#bookmarks').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !bookmarksOpen);
+  $('#history').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen);
   requestLayout();
 }
 
@@ -259,7 +328,11 @@ address.addEventListener('focus', () => address.select());
 $('#new-tab').addEventListener('click', () => window.barlas.newTab());
 $('#home').addEventListener('click', () => window.barlas.newTab());
 $('#bookmarks').addEventListener('click', () => setBookmarksOpen(!bookmarksOpen));
+$('#history').addEventListener('click', () => setHistoryOpen(!historyOpen));
 $('#close-bookmarks').addEventListener('click', () => setBookmarksOpen(false));
+$('#close-history').addEventListener('click', () => setHistoryOpen(false));
+$('#history-search').addEventListener('input', renderHistory);
+$('#clear-history').addEventListener('click', () => window.barlas.clearHistory());
 $('#close-settings').addEventListener('click', () => setSettingsOpen(false));
 $('#bookmark-page').addEventListener('click', () => window.barlas.toggleBookmark());
 $('#back').addEventListener('click', () => window.barlas.back());
@@ -297,5 +370,6 @@ window.barlas.onFind(() => {
   address.select();
 });
 window.barlas.onOpenBookmarks(() => setBookmarksOpen(true));
+window.barlas.onOpenHistory(() => setHistoryOpen(true));
 window.barlas.onOpenSettings(() => setSettingsOpen(true));
 window.barlas.getState().then(render);
