@@ -1,16 +1,94 @@
 'use strict';
 
 const path = require('node:path');
+const fs = require('node:fs/promises');
 const { app, BrowserWindow, WebContentsView, ipcMain, session, shell } = require('electron');
 const { normalizeAddress } = require('./navigation.cjs');
+const { countryCodeFromResponse, languageForCountry, supportedSystemLanguage } = require('./localization.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
+const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
+const GEO_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+
+const NEW_TAB_COPY = {
+  az: ['İrəli düşün. Hüdudları aş.', 'Yuxarıdakı sətrə ünvan və ya sorğu daxil edin'],
+  en: ['Think ahead. Act beyond.', 'Enter an address or search above'],
+  kk: ['Алға ойла. Шектен ас.', 'Жоғарыдағы жолға мекенжай не сұрау енгізіңіз'],
+  ky: ['Алдыга ойло. Чектен чык.', 'Жогору жакка дарек же издөө сурамын киргизиңиз'],
+  mn: ['Урагшаа сэтгэ. Хязгаарыг дав.', 'Дээрх мөрөнд хаяг эсвэл хайлт оруулна уу'],
+  ru: ['Думай вперёд. Выходи за рамки.', 'Введите адрес или запрос в строке сверху'],
+  tr: ['İleriyi düşün. Sınırları aş.', 'Yukarıya bir adres veya arama yazın'],
+  uz: ["Oldinga o‘yla. Chegaradan osh.", 'Yuqoridagi qatorga manzil yoki so‘rov kiriting']
+};
+
+const MAIN_COPY = {
+  az: { newTab: 'Yeni tab', crashed: 'Tab dayandırıldı' },
+  en: { newTab: 'New tab', crashed: 'Tab stopped working' },
+  kk: { newTab: 'Жаңа бет', crashed: 'Бет жұмысын тоқтатты' },
+  ky: { newTab: 'Жаңы өтмөк', crashed: 'Өтмөк иштебей калды' },
+  mn: { newTab: 'Шинэ таб', crashed: 'Таб ажиллагааг зогсоолоо' },
+  ru: { newTab: 'Новая вкладка', crashed: 'Вкладка завершила работу' },
+  tr: { newTab: 'Yeni sekme', crashed: 'Sekme çalışmayı durdurdu' },
+  uz: { newTab: 'Yangi varaq', crashed: 'Varaq ishlashni to‘xtatdi' }
+};
+
+function mainCopy(key) {
+  return (MAIN_COPY[localeState.language] || MAIN_COPY.en)[key];
+}
 
 let window;
 let activeTabId;
 let layout = { ...DEFAULT_LAYOUT };
 let nextTabId = 1;
 const tabs = new Map();
+let localeState = { language: 'en', countryCode: '', source: 'system' };
+
+function settingsPath() {
+  return path.join(app.getPath('userData'), 'locale.json');
+}
+
+async function readCachedLocale() {
+  try {
+    const cached = JSON.parse(await fs.readFile(settingsPath(), 'utf8'));
+    const detectedAt = Number(cached.detectedAt);
+    if (!Number.isFinite(detectedAt) || Date.now() - detectedAt > GEO_CACHE_MAX_AGE) return null;
+    if (!/^[A-Z]{2}$/.test(String(cached.countryCode || ''))) return null;
+    return {
+      language: languageForCountry(cached.countryCode),
+      countryCode: cached.countryCode,
+      source: 'ip'
+    };
+  } catch {
+    return null;
+  }
+}
+
+async function detectLocale() {
+  const fallback = {
+    language: supportedSystemLanguage(app.getLocale()),
+    countryCode: '',
+    source: 'system'
+  };
+  const cached = await readCachedLocale();
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(GEO_ENDPOINT, { signal: AbortSignal.timeout(2500) });
+    if (!response.ok) return fallback;
+    const countryCode = countryCodeFromResponse(await response.json());
+    if (!countryCode) return fallback;
+    const detected = { language: languageForCountry(countryCode), countryCode, source: 'ip' };
+    try {
+      await fs.mkdir(app.getPath('userData'), { recursive: true });
+      await fs.writeFile(settingsPath(), JSON.stringify({ countryCode, detectedAt: Date.now() }), 'utf8');
+    } catch {
+      // Language selection still works when the local cache cannot be written.
+    }
+    return detected;
+  } catch {
+    return fallback;
+  }
+}
 
 function activeTab() {
   return tabs.get(activeTabId);
@@ -19,7 +97,7 @@ function activeTab() {
 function publicTab(tab) {
   return {
     id: tab.id,
-    title: tab.title || 'Новая вкладка',
+    title: tab.title || mainCopy('newTab'),
     url: tab.displayUrl || '',
     loading: tab.loading,
     canGoBack: tab.view.webContents.canGoBack(),
@@ -31,7 +109,8 @@ function publicTab(tab) {
 function state() {
   return {
     tabs: [...tabs.values()].map(publicTab),
-    activeTabId
+    activeTabId,
+    locale: localeState
   };
 }
 
@@ -52,8 +131,10 @@ function updateBounds() {
 }
 
 function newTabPage(tab) {
-  const html = `<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
-    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090b;color:#f4f5f7;font:16px system-ui,sans-serif}main{text-align:center;width:min(720px,88vw)}.mark{position:relative;margin:auto;width:88px;height:76px;filter:drop-shadow(0 18px 24px #ed1c2445)}.mark i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#ff3037,#cf060d)}.mark i:nth-child(1){left:4px;top:0}.mark i:nth-child(2){right:4px;top:0}.mark i:nth-child(3){left:25px;bottom:0}h1{font-size:44px;letter-spacing:-2px;margin:24px 0 8px}p{color:#8e929a;margin:0}.hint{margin-top:34px;color:#60646c;font-size:13px}</style></head><body><main><div class="mark"><i></i><i></i><i></i></div><h1>BARLAS Browser</h1><p>Think ahead. Act beyond.</p><div class="hint">Введите адрес или запрос в строке сверху</div></main></body></html>`;
+  const language = localeState.language;
+  const [tagline, hint] = NEW_TAB_COPY[language] || NEW_TAB_COPY.en;
+  const html = `<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090b;color:#f4f5f7;font:16px system-ui,sans-serif}main{text-align:center;width:min(720px,88vw)}.mark{position:relative;margin:auto;width:88px;height:76px;filter:drop-shadow(0 18px 24px #ed1c2445)}.mark i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#ff3037,#cf060d)}.mark i:nth-child(1){left:4px;top:0}.mark i:nth-child(2){right:4px;top:0}.mark i:nth-child(3){left:25px;bottom:0}h1{font-size:44px;letter-spacing:-2px;margin:24px 0 8px}p{color:#8e929a;margin:0}.hint{margin-top:34px;color:#60646c;font-size:13px}</style></head><body><main><div class="mark"><i></i><i></i><i></i></div><h1>BARLAS Browser</h1><p>${tagline}</p><div class="hint">${hint}</div></main></body></html>`;
   tab.displayUrl = '';
   return tab.view.webContents.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
 }
@@ -78,7 +159,7 @@ function wireTab(tab) {
     }
   });
   contents.on('page-title-updated', (_event, title) => {
-    tab.title = title || 'Новая вкладка';
+    tab.title = title || mainCopy('newTab');
     broadcast();
   });
   contents.on('page-favicon-updated', (_event, favicons) => {
@@ -104,7 +185,7 @@ function wireTab(tab) {
     broadcast();
   });
   contents.on('render-process-gone', () => {
-    tab.title = 'Вкладка завершила работу';
+    tab.title = mainCopy('crashed');
     tab.loading = false;
     broadcast();
   });
@@ -147,7 +228,7 @@ function createTab(url = 'barlas://newtab', activate = true) {
       partition: 'persist:barlas-browser'
     }
   });
-  const tab = { id, view, title: 'Новая вкладка', displayUrl: '', favicon: '', loading: false };
+  const tab = { id, view, title: mainCopy('newTab'), displayUrl: '', favicon: '', loading: false };
   tabs.set(id, tab);
   wireTab(tab);
   navigateTab(tab, url).catch(() => undefined);
@@ -235,7 +316,8 @@ function createWindow() {
   window.webContents.once('did-finish-load', () => createTab());
 }
 
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  localeState = await detectLocale();
   const browserSession = session.fromPartition('persist:barlas-browser');
   browserSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
   browserSession.setPermissionCheckHandler(() => false);

@@ -10,6 +10,10 @@ BARLAS Browser separates trusted application UI from untrusted web pages.
 tabs, navigation, downloads, permission policy, and the persistent browser
 session.
 
+At startup, the main process requests only a country code from `ipwho.is`, maps
+it to a supported interface language, and caches the country locally for seven
+days. If the request fails, the operating-system language is used instead.
+
 ### Preload bridge
 
 `src/preload.cjs` exposes a small, explicit API to the trusted browser shell.

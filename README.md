@@ -26,6 +26,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 - Chromium-compatible browsing in independent tabs
 - Google search directly from the address bar
+- Automatic country detection by IP with a localized browser interface
 - Back, forward, reload, stop, home, and common keyboard shortcuts
 - Popup links converted into controlled tabs
 - Persistent browser profile and native downloads
@@ -103,8 +104,9 @@ scope; the same commands already run locally.
 
 BARLAS Browser — открытый самостоятельный desktop-браузер на Chromium с
 компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
-вкладки, Google-поиск из адресной строки, загрузки, горячие клавиши и изоляцию
-сайтов. В браузере нет встроенного ИИ и зависимости от BARLAS OS. Перед
+вкладки, Google-поиск из адресной строки, автоматический выбор языка по стране,
+загрузки, горячие клавиши и изоляцию сайтов. В браузере нет встроенного ИИ и
+зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,
 управление разрешениями и тестирование на Windows.
 
