@@ -4,12 +4,45 @@ const path = require('node:path');
 const fs = require('node:fs/promises');
 const { app, BrowserWindow, WebContentsView, ipcMain, session, shell } = require('electron');
 const { normalizeAddress } = require('./navigation.cjs');
-const { countryCodeFromResponse, languageForCountry, supportedSystemLanguage } = require('./localization.cjs');
+const {
+  BUNDLED_LANGUAGES,
+  baseLanguage,
+  countryCodeFromResponse,
+  languageForCountry,
+  supportedSystemLanguage
+} = require('./localization.cjs');
 const { sanitizeBrowserData } = require('./browser-data.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
 const GEO_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
+const TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
+
+const EN_INTERFACE_COPY = Object.freeze({
+  newTab: 'New tab',
+  crashed: 'Tab stopped working',
+  tagline: 'Think ahead. Act beyond.',
+  newTabHint: 'Enter an address or search above',
+  closeTab: 'Close tab',
+  settingsSoon: 'Privacy settings are coming in the next version',
+  privacySettings: 'Privacy settings (coming soon)',
+  sidebar: 'Sidebar',
+  navigation: 'Navigation',
+  back: 'Back',
+  forward: 'Forward',
+  reload: 'Reload',
+  stop: 'Stop',
+  connection: 'Connection status',
+  address: 'Address or search query',
+  addressPlaceholder: 'Enter an address or search query',
+  go: 'Go',
+  menu: 'Menu',
+  bookmarks: 'Bookmarks',
+  addBookmark: 'Add bookmark',
+  removeBookmark: 'Remove bookmark',
+  emptyBookmarks: 'No saved pages yet',
+  close: 'Close'
+});
 
 const NEW_TAB_COPY = {
   az: ['İrəli düşün. Hüdudları aş.', 'Yuxarıdakı sətrə ünvan və ya sorğu daxil edin'],
@@ -34,7 +67,14 @@ const MAIN_COPY = {
 };
 
 function mainCopy(key) {
+  if (localeState.messages?.[key]) return localeState.messages[key];
   return (MAIN_COPY[localeState.language] || MAIN_COPY.en)[key];
+}
+
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  })[character]);
 }
 
 let window;
@@ -42,7 +82,7 @@ let activeTabId;
 let layout = { ...DEFAULT_LAYOUT };
 let nextTabId = 1;
 const tabs = new Map();
-let localeState = { language: 'en', countryCode: '', source: 'system' };
+let localeState = { language: 'en', countryCode: '', source: 'system', messages: {} };
 let browserData = sanitizeBrowserData();
 let saveQueue = Promise.resolve();
 let restoringSession = false;
@@ -88,40 +128,109 @@ async function readCachedLocale() {
     const detectedAt = Number(cached.detectedAt);
     if (!Number.isFinite(detectedAt) || Date.now() - detectedAt > GEO_CACHE_MAX_AGE) return null;
     if (!/^[A-Z]{2}$/.test(String(cached.countryCode || ''))) return null;
+    const language = languageForCountry(cached.countryCode);
     return {
-      language: languageForCountry(cached.countryCode),
+      language,
       countryCode: cached.countryCode,
-      source: 'ip'
+      source: 'ip',
+      messages: cached.language === language ? sanitizeMessages(cached.messages) : {}
     };
   } catch {
     return null;
   }
 }
 
+function sanitizeMessages(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+  const messages = {};
+  for (const key of Object.keys(EN_INTERFACE_COPY)) {
+    if (typeof value[key] === 'string' && value[key].trim() && value[key].length <= 240) {
+      messages[key] = value[key].trim();
+    }
+  }
+  return messages;
+}
+
+async function translateInterface(locale) {
+  const language = baseLanguage(locale);
+  if (BUNDLED_LANGUAGES.has(language)) return {};
+
+  const entries = Object.entries(EN_INTERFACE_COPY);
+  const chunks = [];
+  for (let index = 0; index < entries.length; index += 6) chunks.push(entries.slice(index, index + 6));
+
+  try {
+    const translatedChunks = await Promise.all(chunks.map(async (chunk) => {
+      const separator = '\n§§\n';
+      const url = new URL(TRANSLATE_ENDPOINT);
+      url.searchParams.set('q', chunk.map(([, value]) => value).join(separator));
+      url.searchParams.set('langpair', `en|${language}`);
+      const response = await fetch(url, { signal: AbortSignal.timeout(5000) });
+      if (!response.ok) throw new Error('Translation request failed');
+      const payload = await response.json();
+      const values = String(payload?.responseData?.translatedText || '').split(/\s*§§\s*/);
+      if (values.length !== chunk.length) throw new Error('Translation response was incomplete');
+      return chunk.map(([key], index) => [key, values[index].trim()]);
+    }));
+    return sanitizeMessages(Object.fromEntries(translatedChunks.flat()));
+  } catch {
+    return {};
+  }
+}
+
+async function withInterfaceTranslation(locale) {
+  return { ...locale, messages: await translateInterface(locale.language) };
+}
+
 async function detectLocale() {
+  const cached = await readCachedLocale();
+  if (cached) {
+    if (BUNDLED_LANGUAGES.has(baseLanguage(cached.language)) || Object.keys(cached.messages).length) return cached;
+    const translated = { ...cached, messages: await translateInterface(cached.language) };
+    try {
+      await fs.writeFile(settingsPath(), JSON.stringify({
+        countryCode: translated.countryCode,
+        language: translated.language,
+        messages: translated.messages,
+        detectedAt: Date.now()
+      }), 'utf8');
+    } catch {
+      // A read-only profile can still use the translation for this session.
+    }
+    return translated;
+  }
+
   const fallback = {
     language: supportedSystemLanguage(app.getLocale()),
     countryCode: '',
     source: 'system'
   };
-  const cached = await readCachedLocale();
-  if (cached) return cached;
+  const translatedFallback = () => withInterfaceTranslation(fallback);
 
   try {
     const response = await fetch(GEO_ENDPOINT, { signal: AbortSignal.timeout(2500) });
-    if (!response.ok) return fallback;
+    if (!response.ok) return translatedFallback();
     const countryCode = countryCodeFromResponse(await response.json());
-    if (!countryCode) return fallback;
-    const detected = { language: languageForCountry(countryCode), countryCode, source: 'ip' };
+    if (!countryCode) return translatedFallback();
+    const detected = await withInterfaceTranslation({
+      language: languageForCountry(countryCode),
+      countryCode,
+      source: 'ip'
+    });
     try {
       await fs.mkdir(app.getPath('userData'), { recursive: true });
-      await fs.writeFile(settingsPath(), JSON.stringify({ countryCode, detectedAt: Date.now() }), 'utf8');
+      await fs.writeFile(settingsPath(), JSON.stringify({
+        countryCode,
+        language: detected.language,
+        messages: detected.messages,
+        detectedAt: Date.now()
+      }), 'utf8');
     } catch {
       // Language selection still works when the local cache cannot be written.
     }
     return detected;
   } catch {
-    return fallback;
+    return translatedFallback();
   }
 }
 
@@ -169,9 +278,13 @@ function updateBounds() {
 
 function newTabPage(tab) {
   const language = localeState.language;
-  const [tagline, hint] = NEW_TAB_COPY[language] || NEW_TAB_COPY.en;
+  const [bundledTagline, bundledHint] = NEW_TAB_COPY[language] || NEW_TAB_COPY.en;
+  const tagline = localeState.messages?.tagline || bundledTagline;
+  const hint = localeState.messages?.newTabHint || bundledHint;
+  const safeTagline = escapeHtml(tagline);
+  const safeHint = escapeHtml(hint);
   const html = `<!doctype html><html lang="${language}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><style>
-    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090b;color:#f4f5f7;font:16px system-ui,sans-serif}main{text-align:center;width:min(720px,88vw)}.mark{position:relative;margin:auto;width:88px;height:76px;filter:drop-shadow(0 18px 24px #ed1c2445)}.mark i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#ff3037,#cf060d)}.mark i:nth-child(1){left:4px;top:0}.mark i:nth-child(2){right:4px;top:0}.mark i:nth-child(3){left:25px;bottom:0}h1{font-size:44px;letter-spacing:-2px;margin:24px 0 8px}p{color:#8e929a;margin:0}.hint{margin-top:34px;color:#60646c;font-size:13px}</style></head><body><main><div class="mark"><i></i><i></i><i></i></div><h1>BARLAS Browser</h1><p>${tagline}</p><div class="hint">${hint}</div></main></body></html>`;
+    :root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#08090b;color:#f4f5f7;font:16px system-ui,sans-serif}main{text-align:center;width:min(720px,88vw)}.mark{position:relative;margin:auto;width:88px;height:76px;filter:drop-shadow(0 18px 24px #ed1c2445)}.mark i{position:absolute;width:38px;height:38px;border-radius:50%;background:linear-gradient(145deg,#ff3037,#cf060d)}.mark i:nth-child(1){left:4px;top:0}.mark i:nth-child(2){right:4px;top:0}.mark i:nth-child(3){left:25px;bottom:0}h1{font-size:44px;letter-spacing:-2px;margin:24px 0 8px}p{color:#8e929a;margin:0}.hint{margin-top:34px;color:#60646c;font-size:13px}</style></head><body><main><div class="mark"><i></i><i></i><i></i></div><h1>BARLAS Browser</h1><p>${safeTagline}</p><div class="hint">${safeHint}</div></main></body></html>`;
   tab.displayUrl = '';
   return tab.view.webContents.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(html)}`);
 }

@@ -3,6 +3,7 @@ const tabsElement = $('#tabs');
 const address = $('#address');
 let browserState = { tabs: [], activeTabId: null };
 let language = 'en';
+let translatedCopy = {};
 let bookmarksOpen = false;
 
 const BOOKMARK_COPY = {
@@ -28,15 +29,18 @@ const COPY = {
 };
 
 function t(key) {
+  if (translatedCopy[key]) return translatedCopy[key];
   return (COPY[language] || COPY.en)[key];
 }
 
 function bt(key) {
+  if (translatedCopy[key]) return translatedCopy[key];
   return (BOOKMARK_COPY[language] || BOOKMARK_COPY.en)[key];
 }
 
 function applyLocale(locale) {
-  language = COPY[locale?.language] ? locale.language : 'en';
+  language = locale?.language || 'en';
+  translatedCopy = locale?.messages || {};
   document.documentElement.lang = language;
   $('#new-tab').title = `${t('newTab')} (Ctrl+T)`;
   $('#new-tab').ariaLabel = t('newTab');

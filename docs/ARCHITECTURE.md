@@ -14,9 +14,16 @@ Bookmarks and the restorable list of open HTTP(S) tabs are validated and
 stored locally in the Electron user-data directory. Writes use a temporary
 file and atomic rename so an interrupted write does not leave partial JSON.
 
-At startup, the main process requests only a country code from `ipwho.is`, maps
-it to a supported interface language, and caches the country locally for seven
-days. If the request fails, the operating-system language is used instead.
+At startup, the main process requests only a country code from `ipwho.is` and
+maps all 251 ISO-backed countries and territories to 79 primary interface
+languages. If country detection fails, the operating-system language is used.
+The country and generated interface copy are cached locally for seven days.
+
+Eight core languages are bundled with the application. For another locale,
+only the browser's fixed English interface labels are sent to the free
+MyMemory translation endpoint once and cached; URLs, page content, bookmarks,
+searches, and browsing history are never sent to that service. If translation
+is unavailable, the interface safely falls back to English.
 
 ### Preload bridge
 

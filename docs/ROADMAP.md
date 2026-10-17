@@ -13,6 +13,7 @@ The roadmap is directional. Security fixes take priority over feature work.
 ## 0.2 — Daily browsing
 
 - [x] Local bookmarks
+- [x] Worldwide country and system-language localization
 - [ ] Bookmark import
 - [ ] Searchable browsing history
 - [x] Open-session restore

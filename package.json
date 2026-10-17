@@ -1,6 +1,6 @@
 {
   "name": "barlas-browser",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Fast, focused Chromium desktop browser by Barlas Bit",
   "homepage": "https://github.com/WatcherAI-1997/barlas-browser#readme",
   "repository": {
@@ -62,5 +62,8 @@
       "createDesktopShortcut": true,
       "shortcutName": "BARLAS Browser"
     }
+  },
+  "dependencies": {
+    "country-locale-map": "^1.9.14"
   }
 }

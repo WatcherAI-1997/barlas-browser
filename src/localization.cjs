@@ -1,5 +1,9 @@
 'use strict';
 
+const countryLocaleMap = require('country-locale-map');
+
+// Product-specific choices take precedence over a country's library default.
+// All other ISO 3166-1 countries are resolved by country-locale-map.
 const COUNTRY_LANGUAGE = Object.freeze({
   AZ: 'az',
   BY: 'ru',
@@ -11,15 +15,31 @@ const COUNTRY_LANGUAGE = Object.freeze({
   UZ: 'uz'
 });
 
-const SUPPORTED_LANGUAGES = new Set(['az', 'en', 'kk', 'ky', 'mn', 'ru', 'tr', 'uz']);
+const BUNDLED_LANGUAGES = new Set(['az', 'en', 'kk', 'ky', 'mn', 'ru', 'tr', 'uz']);
+
+function normalizeLocale(locale) {
+  const candidate = String(locale || '').trim().replaceAll('_', '-');
+  if (!candidate) return 'en';
+  try {
+    return new Intl.Locale(candidate).toString();
+  } catch {
+    return 'en';
+  }
+}
+
+function baseLanguage(locale) {
+  return normalizeLocale(locale).split('-')[0].toLowerCase();
+}
 
 function languageForCountry(countryCode) {
-  return COUNTRY_LANGUAGE[String(countryCode || '').trim().toUpperCase()] || 'en';
+  const code = String(countryCode || '').trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return 'en';
+  if (COUNTRY_LANGUAGE[code]) return COUNTRY_LANGUAGE[code];
+  return baseLanguage(countryLocaleMap.getLocaleByAlpha2(code) || 'en');
 }
 
 function supportedSystemLanguage(locale) {
-  const language = String(locale || '').trim().toLowerCase().split(/[-_]/)[0];
-  return SUPPORTED_LANGUAGES.has(language) ? language : 'en';
+  return baseLanguage(locale);
 }
 
 function countryCodeFromResponse(payload) {
@@ -29,9 +49,11 @@ function countryCodeFromResponse(payload) {
 }
 
 module.exports = {
+  BUNDLED_LANGUAGES,
   COUNTRY_LANGUAGE,
-  SUPPORTED_LANGUAGES,
+  baseLanguage,
+  countryCodeFromResponse,
   languageForCountry,
-  supportedSystemLanguage,
-  countryCodeFromResponse
+  normalizeLocale,
+  supportedSystemLanguage
 };
