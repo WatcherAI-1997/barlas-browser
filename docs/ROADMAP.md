@@ -9,7 +9,6 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [x] Google search from the address bar
 - [x] Persistent profile and downloads
 - [x] Sandboxed page processes
-- [x] BARLAS OS launcher and assistant panel foundation
 
 ## 0.2 — Daily browsing
 
@@ -29,14 +28,14 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [ ] Crash recovery
 - [ ] Signed Windows installer
 
-## 0.4 — BARLAS intelligence
+## 0.4 — Productivity
 
-- [ ] Page-aware chat with explicit consent
-- [ ] Multi-tab research and comparison
-- [ ] Summaries with source links
-- [ ] Controlled form filling and browser actions
-- [ ] Local-model mode
-- [ ] Visible action log and approval gates
+- [ ] Opera-style workspaces
+- [ ] Tab groups and vertical tabs
+- [ ] Sidebar web apps
+- [ ] Split-screen browsing
+- [ ] Cross-device bookmark and tab sync
+- [ ] Battery and memory saver modes
 
 ## 1.0 — Audited release
 

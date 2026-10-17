@@ -13,8 +13,6 @@ contextBridge.exposeInMainWorld('barlas', {
   reload: () => ipcRenderer.invoke('browser:reload'),
   stop: () => ipcRenderer.invoke('browser:stop'),
   home: () => ipcRenderer.invoke('browser:home'),
-  openBarlas: () => ipcRenderer.invoke('browser:open-barlas'),
-  setAssistantOpen: (open) => ipcRenderer.invoke('browser:set-assistant', Boolean(open)),
   reportLayout: (layout) => ipcRenderer.send('browser:layout', layout),
   onState: (callback) => {
     const handler = (_event, state) => callback(state);

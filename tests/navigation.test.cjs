@@ -26,7 +26,7 @@ test('rejects privileged and script protocols as searches', () => {
   assert.match(normalizeAddress('chrome://settings'), /^https:\/\/www\.google\.com\/search\?q=/);
 });
 
-test('supports internal Barlas pages', () => {
+test('supports only the internal new-tab page', () => {
   assert.equal(normalizeAddress('barlas://newtab'), 'barlas://newtab');
-  assert.equal(normalizeAddress('BARLAS://OS'), 'barlas://os');
+  assert.match(normalizeAddress('BARLAS://OS'), /^https:\/\/www\.google\.com\/search\?q=/);
 });

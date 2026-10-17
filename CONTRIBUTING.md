@@ -1,6 +1,6 @@
 # Contributing to BARLAS Browser
 
-Thanks for helping build an open, AI-native browser.
+Thanks for helping build an open, focused desktop browser.
 
 ## Before you start
 

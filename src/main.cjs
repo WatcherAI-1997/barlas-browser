@@ -4,12 +4,10 @@ const path = require('node:path');
 const { app, BrowserWindow, WebContentsView, ipcMain, session, shell } = require('electron');
 const { normalizeAddress } = require('./navigation.cjs');
 
-const BARLAS_OS_URL = process.env.BARLAS_OS_URL || 'http://127.0.0.1:17840';
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 
 let window;
 let activeTabId;
-let assistantOpen = false;
 let layout = { ...DEFAULT_LAYOUT };
 let nextTabId = 1;
 const tabs = new Map();
@@ -33,9 +31,7 @@ function publicTab(tab) {
 function state() {
   return {
     tabs: [...tabs.values()].map(publicTab),
-    activeTabId,
-    assistantOpen,
-    barlasOsUrl: BARLAS_OS_URL
+    activeTabId
   };
 }
 
@@ -47,11 +43,10 @@ function updateBounds() {
   const tab = activeTab();
   if (!window || !tab) return;
   const [width, height] = window.getContentSize();
-  const assistantWidth = assistantOpen ? Math.min(360, Math.floor(width * 0.3)) : 0;
   tab.view.setBounds({
     x: Math.max(0, Math.round(layout.x)),
     y: Math.max(0, Math.round(layout.y)),
-    width: Math.max(320, width - Math.round(layout.x) - assistantWidth - Math.round(layout.right)),
+    width: Math.max(320, width - Math.round(layout.x) - Math.round(layout.right)),
     height: Math.max(200, height - Math.round(layout.y) - Math.round(layout.bottom))
   });
 }
@@ -66,7 +61,6 @@ function newTabPage(tab) {
 function navigateTab(tab, input) {
   const target = normalizeAddress(input);
   if (target === 'barlas://newtab') return newTabPage(tab);
-  if (target === 'barlas://os') return tab.view.webContents.loadURL(BARLAS_OS_URL);
   return tab.view.webContents.loadURL(target);
 }
 
@@ -204,12 +198,6 @@ function installIpc() {
   ipcMain.handle('browser:reload', () => activeTab()?.view.webContents.reload());
   ipcMain.handle('browser:stop', () => activeTab()?.view.webContents.stop());
   ipcMain.handle('browser:home', () => activeTab() && navigateTab(activeTab(), 'barlas://newtab'));
-  ipcMain.handle('browser:open-barlas', () => createTab('barlas://os'));
-  ipcMain.handle('browser:set-assistant', (_event, open) => {
-    assistantOpen = Boolean(open);
-    updateBounds();
-    broadcast();
-  });
   ipcMain.on('browser:layout', (_event, value) => {
     if (!value || typeof value !== 'object') return;
     layout = {

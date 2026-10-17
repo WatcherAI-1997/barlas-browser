@@ -1,9 +1,7 @@
 const $ = (selector) => document.querySelector(selector);
 const tabsElement = $('#tabs');
 const address = $('#address');
-const assistant = $('#assistant');
-const aiButton = $('#ai-button');
-let browserState = { tabs: [], activeTabId: null, assistantOpen: false };
+let browserState = { tabs: [], activeTabId: null };
 
 function activeTab() {
   return browserState.tabs.find((tab) => tab.id === browserState.activeTabId);
@@ -65,17 +63,11 @@ function render(state) {
   $('#reload').textContent = tab?.loading ? '×' : '↻';
   $('#reload').title = tab?.loading ? 'Остановить' : 'Обновить';
   $('#security-indicator').classList.toggle('insecure', Boolean(tab?.url && !tab.url.startsWith('https://')));
-  assistant.hidden = !state.assistantOpen;
-  aiButton.classList.toggle('active', state.assistantOpen);
   requestLayout();
 }
 
 function requestLayout() {
   window.barlas.reportLayout({ x: 58, y: 102, right: 0, bottom: 0 });
-}
-
-function toggleAssistant(open = !browserState.assistantOpen) {
-  window.barlas.setAssistantOpen(open);
 }
 
 $('#address-form').addEventListener('submit', (event) => {
@@ -86,14 +78,9 @@ $('#address-form').addEventListener('submit', (event) => {
 address.addEventListener('focus', () => address.select());
 $('#new-tab').addEventListener('click', () => window.barlas.newTab());
 $('#home').addEventListener('click', () => window.barlas.newTab());
-$('#barlas-os').addEventListener('click', () => window.barlas.openBarlas());
 $('#back').addEventListener('click', () => window.barlas.back());
 $('#forward').addEventListener('click', () => window.barlas.forward());
 $('#reload').addEventListener('click', () => activeTab()?.loading ? window.barlas.stop() : window.barlas.reload());
-$('#ai-button').addEventListener('click', () => toggleAssistant());
-$('#assistant-toggle').addEventListener('click', () => toggleAssistant());
-$('#assistant-close').addEventListener('click', () => toggleAssistant(false));
-$('#assistant-open-os').addEventListener('click', () => window.barlas.openBarlas());
 $('#settings').addEventListener('click', () => showToast('Настройки приватности появятся в следующей версии'));
 $('#menu').addEventListener('click', () => showToast('BARLAS Browser 0.1 · Chromium'));
 window.addEventListener('resize', requestLayout);

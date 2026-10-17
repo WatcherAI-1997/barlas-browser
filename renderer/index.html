@@ -17,9 +17,7 @@
 
     <aside class="rail" aria-label="Боковая панель">
       <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка">⌂</button>
-      <button id="barlas-os" class="rail-button barlas-button" title="Открыть BARLAS OS" aria-label="Открыть BARLAS OS">B</button>
       <div class="rail-spacer"></div>
-      <button id="assistant-toggle" class="rail-button" title="Панель Barlas" aria-label="Панель Barlas">✦</button>
       <button id="settings" class="rail-button" title="Настройки (в разработке)" aria-label="Настройки">⚙</button>
     </aside>
 
@@ -32,21 +30,8 @@
         <input id="address" type="text" autocomplete="off" spellcheck="false" aria-label="Адрес или поисковый запрос" placeholder="Введите адрес или поисковый запрос" />
         <button id="go" type="submit" class="go-button" aria-label="Перейти">↵</button>
       </form>
-      <button id="ai-button" class="ai-button" title="BARLAS Assistant"><span>✦</span> Barlas</button>
       <button id="menu" class="toolbar-button" title="Меню" aria-label="Меню">⋮</button>
     </nav>
-
-    <section id="assistant" class="assistant" aria-label="BARLAS Assistant" hidden>
-      <div class="assistant-head"><div><span class="assistant-star">✦</span><strong> Barlas</strong></div><button id="assistant-close" aria-label="Закрыть">×</button></div>
-      <div class="assistant-body">
-        <span class="status-dot"></span><span class="eyebrow">BARLAS OS</span>
-        <h2>Работай с интернетом, а не с вкладками.</h2>
-        <p>Локальная система подключается к браузеру и помогает исследовать страницы, сравнивать информацию и выполнять задачи.</p>
-        <button id="assistant-open-os" class="primary">Открыть BARLAS OS</button>
-        <p class="local-note">Локальное подключение: <code>127.0.0.1:17840</code></p>
-      </div>
-      <div class="assistant-compose"><textarea disabled placeholder="Чат появится после подключения API BARLAS OS"></textarea><button disabled>↑</button></div>
-    </section>
 
     <div id="toast" class="toast" role="status" hidden></div>
     <script src="./app.js"></script>

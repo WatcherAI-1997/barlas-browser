@@ -1,7 +1,7 @@
 <div align="center">
   <img src="assets/icon.svg" width="112" alt="BARLAS Browser logo">
   <h1>BARLAS Browser</h1>
-  <p><strong>An AI-native desktop browser by Barlas Bit.</strong></p>
+  <p><strong>A fast, focused desktop browser by Barlas Bit.</strong></p>
   <p>Think ahead. Act beyond.</p>
 
   [![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
@@ -13,10 +13,9 @@
 
 ![BARLAS Browser interface preview](docs/interface-preview.svg)
 
-BARLAS Browser is an open desktop browser built on Chromium and designed as
-the web interface for **BARLAS OS**. The goal is not another reskinned browser:
-it is a foundation for browsing, research, automation, and local AI assistance
-in one controlled workspace.
+BARLAS Browser is an open desktop browser built on Chromium. It combines broad
+website compatibility with a compact Opera-inspired interface, a clear security
+boundary, and a focused roadmap for everyday browsing.
 
 > [!IMPORTANT]
 > This repository is an early alpha. It is useful for development and testing,
@@ -30,7 +29,6 @@ in one controlled workspace.
 - Back, forward, reload, stop, home, and common keyboard shortcuts
 - Popup links converted into controlled tabs
 - Persistent browser profile and native downloads
-- Direct entry point to a local BARLAS OS instance
 - Custom black-and-red BARLAS interface and application icon
 - Isolated page processes with no Node.js access
 - Deny-by-default policy for sensitive website permissions
@@ -43,19 +41,6 @@ Requirements: **Node.js 22+** on Windows, Linux, or macOS.
 git clone https://github.com/WatcherAI-1997/barlas-browser.git
 cd barlas-browser
 npm install
-npm start
-```
-
-BARLAS OS is expected at `http://127.0.0.1:17840`. To use another local URL:
-
-```bash
-BARLAS_OS_URL=http://127.0.0.1:3000 npm start
-```
-
-PowerShell:
-
-```powershell
-$env:BARLAS_OS_URL = "http://127.0.0.1:3000"
 npm start
 ```
 
@@ -77,7 +62,7 @@ Build output is written to `release/`.
 BARLAS shell (trusted renderer)
         │ narrow IPC bridge
         ▼
-Electron main process ───── BARLAS OS at 127.0.0.1:17840
+Electron main process
         │
         ├── sandboxed Chromium tab
         ├── sandboxed Chromium tab
@@ -100,8 +85,8 @@ shell. More detail is available in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 ## Project status
 
 Version `0.1.x` is the browser foundation. Bookmarks, history, session restore,
-per-site permissions, content blocking, signed installers, and page-aware
-BARLAS assistance are tracked in the [roadmap](docs/ROADMAP.md).
+workspaces, tab groups, per-site permissions, content blocking, and signed
+installers are tracked in the [roadmap](docs/ROADMAP.md).
 
 ## Contributing
 
@@ -116,11 +101,12 @@ scope; the same commands already run locally.
 
 ## Русский
 
-BARLAS Browser — открытый desktop-браузер на Chromium и будущий веб-интерфейс
-BARLAS OS. Текущая alpha-версия уже поддерживает вкладки, Google-поиск из
-адресной строки, загрузки, горячие клавиши, изоляцию сайтов и подключение к
-локальному BARLAS OS. Перед использованием с важными аккаунтами проекту ещё
-нужны аудит безопасности, управление разрешениями и тестирование на Windows.
+BARLAS Browser — открытый самостоятельный desktop-браузер на Chromium с
+компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
+вкладки, Google-поиск из адресной строки, загрузки, горячие клавиши и изоляцию
+сайтов. В браузере нет встроенного ИИ и зависимости от BARLAS OS. Перед
+использованием с важными аккаунтами проекту ещё нужны аудит безопасности,
+управление разрешениями и тестирование на Windows.
 
 ## License
 

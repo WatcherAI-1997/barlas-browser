@@ -36,13 +36,6 @@ isolation enabled, Node.js disabled, and insecure active content disabled.
 - prevents privileged or script URL schemes from executing through the address
   bar.
 
-## Local BARLAS OS integration
-
-The browser opens BARLAS OS at `http://127.0.0.1:17840` by default. The URL can
-be replaced using `BARLAS_OS_URL`. Page-aware assistance will use a dedicated,
-permissioned API in a future milestone rather than exposing page contents by
-default.
-
 ## Security work still required
 
 - Per-site permission controls

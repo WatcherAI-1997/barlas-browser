@@ -6,7 +6,7 @@ function normalizeAddress(input) {
   const value = String(input ?? '').trim();
   if (!value) return 'barlas://newtab';
 
-  if (/^barlas:\/\/(newtab|os)$/i.test(value)) return value.toLowerCase();
+  if (/^barlas:\/\/newtab$/i.test(value)) return value.toLowerCase();
   if (/^[a-z][a-z\d+.-]*:\/\//i.test(value)) {
     try {
       const parsed = new URL(value);
