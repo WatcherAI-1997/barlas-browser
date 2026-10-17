@@ -208,6 +208,7 @@ function render(state) {
   $('#search-engine').value = state.settings?.searchEngine || 'google';
   $('#restore-session').checked = state.settings?.restoreSession !== false;
   $('#interface-language').value = state.settings?.language || 'auto';
+  $('.settings-version').textContent = `BARLAS Browser ${state.appVersion || ''}`.trim();
   const tab = activeTab();
   if (document.activeElement !== address) address.value = tab?.url || '';
   $('#back').disabled = !tab?.canGoBack;

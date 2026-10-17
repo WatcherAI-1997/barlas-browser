@@ -45,7 +45,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.2.2-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.2.3-Windows-x64.exe`, choose an installation
 directory, and complete the setup wizard.
 
 The alpha installer is not yet code-signed, so Windows SmartScreen may identify
@@ -66,6 +66,9 @@ npm start
 ## Build
 
 ```bash
+# Regenerate Windows icon and branded NSIS artwork
+npm run assets:win
+
 # Unpacked build for the current platform
 npm run pack
 

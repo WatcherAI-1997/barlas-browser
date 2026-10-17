@@ -299,6 +299,7 @@ function publicTab(tab) {
 
 function state() {
   return {
+    appVersion: app.getVersion(),
     tabs: [...tabs.values()].map(publicTab),
     activeTabId,
     locale: localeState,
@@ -535,7 +536,7 @@ function showBrowserMenu() {
     { label: mainCopy('fullscreen'), type: 'checkbox', checked: window.isFullScreen(), click: () => window.setFullScreen(!window.isFullScreen()) },
     { label: mainCopy('settings'), click: () => window.webContents.send('browser:open-settings') },
     { type: 'separator' },
-    { label: mainCopy('about'), click: () => dialog.showMessageBox(window, { type: 'info', title: 'BARLAS Browser', message: 'BARLAS Browser 0.2.2', detail: `Chromium ${process.versions.chrome}\nElectron ${process.versions.electron}` }) }
+    { label: mainCopy('about'), click: () => dialog.showMessageBox(window, { type: 'info', title: 'BARLAS Browser', message: `BARLAS Browser ${app.getVersion()}`, detail: `Chromium ${process.versions.chrome}\nElectron ${process.versions.electron}` }) }
   ];
   Menu.buildFromTemplate(template).popup({ window });
 }

@@ -1,6 +1,6 @@
 {
   "name": "barlas-browser",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Fast, focused Chromium desktop browser by Barlas Bit",
   "homepage": "https://github.com/WatcherAI-1997/barlas-browser#readme",
   "repository": {
@@ -16,14 +16,18 @@
   "author": "Barlas Bit",
   "license": "MIT",
   "scripts": {
+    "assets:win": "node scripts/generate-windows-assets.cjs",
     "start": "electron .",
     "test": "node --test tests/*.test.cjs",
     "pack": "electron-builder --dir",
     "dist:win": "electron-builder --win nsis"
   },
   "devDependencies": {
+    "bmp-js": "^0.1.0",
     "electron": "44.9.0",
-    "electron-builder": "26.15.3"
+    "electron-builder": "26.15.3",
+    "png-to-ico": "^3.0.1",
+    "sharp": "^0.35.5"
   },
   "overrides": {
     "@electron/get": "5.1.0"
@@ -42,7 +46,7 @@
       "package.json"
     ],
     "win": {
-      "icon": "assets/icon.png",
+      "icon": "assets/icon.ico",
       "target": [
         {
           "target": "nsis",
@@ -57,10 +61,17 @@
       "category": "Network;WebBrowser"
     },
     "nsis": {
+      "artifactName": "BARLAS-Browser-Setup-${version}-Windows-${arch}.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "BARLAS Browser"
+      "shortcutName": "BARLAS Browser",
+      "installerIcon": "assets/icon.ico",
+      "uninstallerIcon": "assets/icon.ico",
+      "installerHeaderIcon": "assets/icon.ico",
+      "installerSidebar": "assets/installer-sidebar.bmp",
+      "uninstallerSidebar": "assets/installer-sidebar.bmp",
+      "installerHeader": "assets/installer-header.bmp"
     }
   },
   "dependencies": {
