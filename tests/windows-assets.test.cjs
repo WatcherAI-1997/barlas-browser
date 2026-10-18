@@ -25,3 +25,13 @@ test('NSIS artwork has the required bitmap dimensions', () => {
     assert.equal(Math.abs(bitmap.readInt32LE(22)), height);
   }
 });
+
+test('brand and installer sources identify Barlas Bit Technology', () => {
+  const logo = fs.readFileSync(path.join(assets, 'brand-logo.svg'), 'utf8');
+  const installer = fs.readFileSync(path.join(__dirname, '..', 'build', 'installer.nsh'), 'utf8');
+  assert.match(logo, /BARLAS BIT/);
+  assert.match(logo, /TECHNOLOGY/);
+  assert.match(installer, /MUI_BGCOLOR "0B0C0F"/);
+  assert.match(installer, /MUI_FINISHPAGE_LINK_COLOR "ED1C24"/);
+  assert.match(installer, /BARLAS BIT TECHNOLOGY/);
+});

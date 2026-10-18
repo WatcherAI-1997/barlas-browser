@@ -91,14 +91,17 @@ function applyLocale(locale) {
   $('.rail').ariaLabel = t('sidebar');
   $('#home').title = t('newTab');
   $('#home').ariaLabel = t('newTab');
+  $('#home .rail-label').textContent = t('newTab');
   $('#bookmarks').title = bt('bookmarks');
   $('#bookmarks').ariaLabel = bt('bookmarks');
+  $('#bookmarks .rail-label').textContent = bt('bookmarks');
   $('#bookmarks-panel').ariaLabel = bt('bookmarks');
   $('#bookmarks-title').textContent = bt('bookmarks');
   $('#bookmarks-empty').textContent = bt('emptyBookmarks');
   $('#close-bookmarks').ariaLabel = bt('close');
   $('#history').title = t('history');
   $('#history').ariaLabel = t('history');
+  $('#history .rail-label').textContent = t('history');
   $('#history-panel').ariaLabel = t('history');
   $('#history-title').textContent = t('history');
   $('#history-search').placeholder = t('searchHistory');
@@ -108,6 +111,7 @@ function applyLocale(locale) {
   $('#close-history').ariaLabel = bt('close');
   $('#settings').title = t('settings');
   $('#settings').ariaLabel = t('settings');
+  $('#settings .rail-label').textContent = t('settings');
   $('#settings-panel').ariaLabel = t('settings');
   $('#settings-title').textContent = t('settings');
   $('#close-settings').ariaLabel = bt('close');
@@ -259,7 +263,7 @@ function render(state) {
   $('#search-engine').value = state.settings?.searchEngine || 'google';
   $('#restore-session').checked = state.settings?.restoreSession !== false;
   $('#interface-language').value = state.settings?.language || 'auto';
-  $('.settings-version').textContent = `BARLAS Browser ${state.appVersion || ''}`.trim();
+  $('.settings-version span').textContent = `BARLAS Browser ${state.appVersion || ''}`.trim();
   const tab = activeTab();
   if (document.activeElement !== address) address.value = tab?.url || '';
   $('#back').disabled = !tab?.canGoBack;
@@ -276,7 +280,7 @@ function render(state) {
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: settingsOpen ? 418 : (historyOpen ? 438 : (bookmarksOpen ? 358 : 58)), y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: settingsOpen ? 436 : (historyOpen ? 456 : (bookmarksOpen ? 376 : 76)), y: 102, right: 0, bottom: 0 });
 }
 
 function setBookmarksOpen(open) {

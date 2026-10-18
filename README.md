@@ -1,7 +1,7 @@
 <div align="center">
-  <img src="assets/icon.svg" width="112" alt="BARLAS Browser logo">
+  <img src="assets/brand-logo.svg" width="460" alt="BARLAS BIT TECHNOLOGY logo">
   <h1>BARLAS Browser</h1>
-  <p><strong>A fast, focused desktop browser by Barlas Bit.</strong></p>
+  <p><strong>A fast, focused desktop browser by Barlas Bit Technology.</strong></p>
   <p>Think ahead. Act beyond.</p>
 
   [![Electron](https://img.shields.io/badge/Electron-44-47848F?logo=electron&logoColor=white)](https://www.electronjs.org/)
@@ -46,7 +46,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.2.4-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.2.5-Windows-x64.exe`, choose an installation
 directory, and complete the setup wizard.
 
 The alpha installer is not yet code-signed, so Windows SmartScreen may identify
@@ -107,6 +107,12 @@ shell. More detail is available in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `Ctrl/Cmd + H` | Open browsing history |
 | `Alt + Left/Right` | Navigate through page history |
 
+## Browsing history
+
+Open history from the labeled **History** button in the left sidebar, from
+**Menu → History**, or with `Ctrl/Cmd + H`. History is stored locally and can
+be searched, cleared completely, or edited one item at a time.
+
 ## Project status
 
 Version `0.2.x` adds the first daily-browsing features. Closed-tab restore,
@@ -130,7 +136,8 @@ BARLAS Browser — открытый самостоятельный desktop-бр�
 компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
 вкладки, Google-поиск из адресной строки, автоматический выбор основного языка
 для 251 страны и территории (79 языков),
-локальные закладки, восстановление открытых вкладок, загрузки, горячие клавиши
+локальные закладки, историю с поиском и очисткой, восстановление открытых вкладок,
+загрузки, горячие клавиши
 и изоляцию сайтов. В браузере нет встроенного ИИ и
 зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,
@@ -138,4 +145,4 @@ BARLAS Browser — открытый самостоятельный desktop-бр�
 
 ## License
 
-[MIT](LICENSE) © 2026 Barlas Bit
+[MIT](LICENSE) © 2026 Barlas Bit Technology

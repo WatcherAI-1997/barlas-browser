@@ -22,12 +22,15 @@ button { color: inherit; }
   padding-left: 10px; padding-right: 142px; background: #0b0c0f; border-bottom: 1px solid #191b20;
   z-index: 4; -webkit-app-region: drag;
 }
-.brand { height: 40px; display: flex; align-items: center; gap: 8px; margin-right: 14px; font-size: 12px; font-weight: 800; letter-spacing: 1.5px; }
+.brand { height: 40px; display: flex; align-items: center; gap: 8px; margin-right: 14px; }
 .brand-mark { position: relative; width: 24px; height: 21px; filter: drop-shadow(0 0 8px #ed1c2466); }
 .brand-mark i { position: absolute; width: 10px; height: 10px; border-radius: 50%; background: var(--red); }
 .brand-mark i:nth-child(1) { left: 1px; top: 0; }
 .brand-mark i:nth-child(2) { right: 1px; top: 0; }
 .brand-mark i:nth-child(3) { left: 7px; bottom: 0; }
+.brand-copy { display: grid; line-height: 1; }
+.brand-copy strong { font-size: 11px; font-weight: 850; letter-spacing: 1.35px; }
+.brand-copy small { margin-top: 3px; color: #7f848d; font-size: 6px; font-weight: 750; letter-spacing: 2.15px; }
 .tabs { min-width: 0; max-width: 850px; height: 38px; display: flex; gap: 4px; overflow: hidden; -webkit-app-region: no-drag; }
 .tab { min-width: 110px; max-width: 230px; flex: 1 1 190px; height: 35px; padding: 0 8px 0 11px; border: 0; border-radius: 10px 10px 0 0; background: transparent; color: #8e929a; display: flex; align-items: center; gap: 8px; cursor: default; }
 .tab.active { background: var(--surface-2); color: var(--text); }
@@ -45,12 +48,15 @@ button { color: inherit; }
 .icon-button { width: 28px; height: 28px; border-radius: 8px; color: #a5a9b1; font-size: 19px; }
 .icon-button:hover, .toolbar-button:hover, .rail-button:hover { background: #22252b; color: white; }
 
-.rail { position: fixed; left: 0; top: 42px; bottom: 0; width: 58px; background: #0b0c0f; border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 11px 0; z-index: 3; }
-.rail-button { width: 38px; height: 38px; border-radius: 12px; color: #858a93; font-size: 17px; }
-.rail-button.active { background: #1c1e23; color: white; }
+.rail { position: fixed; left: 0; top: 42px; bottom: 0; width: 76px; background: #0b0c0f; border-right: 1px solid var(--line); display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 11px 0; z-index: 3; }
+.rail-button { width: 66px; min-height: 49px; padding: 5px 3px 4px; border-radius: 12px; color: #858a93; }
+.rail-button.active { background: #1c1e23; color: white; box-shadow: inset 3px 0 0 var(--red); }
+.rail-icon { display: block; font-size: 17px; line-height: 21px; }
+.rail-label { display: block; width: 100%; overflow: hidden; color: inherit; font-size: 8px; line-height: 13px; white-space: nowrap; text-overflow: ellipsis; }
+.history-button:not(.active) .rail-icon { color: #ef4a50; }
 .rail-spacer { flex: 1; }
 
-.toolbar { position: fixed; left: 58px; right: 0; top: 42px; height: 60px; display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); z-index: 3; }
+.toolbar { position: fixed; left: 76px; right: 0; top: 42px; height: 60px; display: flex; align-items: center; gap: 6px; padding: 9px 12px; background: var(--surface-2); border-bottom: 1px solid var(--line); z-index: 3; }
 .toolbar-button { flex: 0 0 34px; height: 34px; border-radius: 10px; color: #9ba0a8; font-size: 18px; }
 .toolbar-button:disabled { opacity: .3; pointer-events: none; }
 .address-form { flex: 1; height: 40px; display: flex; align-items: center; gap: 9px; padding: 0 8px 0 14px; margin-left: 4px; background: #090a0c; border: 1px solid #282b31; border-radius: 13px; transition: border-color .15s, box-shadow .15s; }
@@ -63,7 +69,7 @@ button { color: inherit; }
 .go-button:hover, .bookmark-button:hover { background: #202329; color: white; }
 .bookmark-button { font-size: 20px; line-height: 1; }
 .bookmark-button.active { color: #ffb92e; }
-.side-panel { position: fixed; left: 58px; top: 102px; bottom: 0; width: 300px; z-index: 4; padding: 18px 14px; background: #0e1013; border-right: 1px solid var(--line); box-shadow: 14px 0 32px #0005; overflow: auto; }
+.side-panel { position: fixed; left: 76px; top: 102px; bottom: 0; width: 300px; z-index: 4; padding: 18px 14px; background: #0e1013; border-right: 1px solid var(--line); box-shadow: 14px 0 32px #0005; overflow: auto; }
 .panel-heading { display: flex; align-items: center; justify-content: space-between; margin: 0 4px 16px; }
 .panel-heading h2 { margin: 0; font-size: 17px; }
 .panel-close { width: 28px; height: 28px; border: 0; border-radius: 8px; background: transparent; color: var(--muted); font-size: 20px; }
@@ -102,10 +108,11 @@ button { color: inherit; }
 .setting-switch input { width: 16px; height: 16px; accent-color: var(--red); }
 .setting-action { width: 100%; margin-top: 16px; padding: 10px 12px; border: 1px solid #34373e; border-radius: 9px; background: #1a1c21; color: var(--text); text-align: left; cursor: pointer; }
 .setting-action:hover { border-color: #555a65; background: #22252b; }
-.settings-version { padding: 18px 4px 0; color: #5f646d; font-size: 10px; }
-.toast { position: fixed; left: 76px; bottom: 18px; z-index: 10; padding: 11px 14px; border: 1px solid #393c43; border-radius: 11px; background: #181a1f; box-shadow: 0 12px 40px #0008; color: #d9dbe0; font-size: 12px; }
+.settings-version { display: grid; gap: 5px; padding: 18px 4px 0; color: #5f646d; font-size: 10px; }
+.settings-version strong { color: #a8abb2; font-size: 9px; letter-spacing: 1.2px; }
+.toast { position: fixed; left: 94px; bottom: 18px; z-index: 10; padding: 11px 14px; border: 1px solid #393c43; border-radius: 11px; background: #181a1f; box-shadow: 0 12px 40px #0008; color: #d9dbe0; font-size: 12px; }
 
 @media (max-width: 1050px) {
-  .brand span:last-child { display: none; }
+  .brand-copy { display: none; }
   .brand { margin-right: 5px; }
 }

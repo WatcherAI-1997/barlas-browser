@@ -1,7 +1,7 @@
 {
   "name": "barlas-browser",
-  "version": "0.2.4",
-  "description": "Fast, focused Chromium desktop browser by Barlas Bit",
+  "version": "0.2.5",
+  "description": "Fast, focused Chromium desktop browser by Barlas Bit Technology",
   "homepage": "https://github.com/WatcherAI-1997/barlas-browser#readme",
   "repository": {
     "type": "git",
@@ -71,7 +71,8 @@
       "installerHeaderIcon": "assets/icon.ico",
       "installerSidebar": "assets/installer-sidebar.bmp",
       "uninstallerSidebar": "assets/installer-sidebar.bmp",
-      "installerHeader": "assets/installer-header.bmp"
+      "installerHeader": "assets/installer-header.bmp",
+      "include": "build/installer.nsh"
     }
   },
   "dependencies": {

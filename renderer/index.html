@@ -9,18 +9,21 @@
   </head>
   <body>
     <header class="top">
-      <div class="brand" aria-label="BARLAS Browser"><span class="brand-mark"><i></i><i></i><i></i></span><span>BARLAS</span></div>
+      <div class="brand" aria-label="BARLAS BIT TECHNOLOGY">
+        <span class="brand-mark"><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>BARLAS BIT</strong><small>TECHNOLOGY</small></span>
+      </div>
       <div id="tabs" class="tabs" role="tablist"></div>
       <button id="new-tab" class="icon-button new-tab" title="Новая вкладка (Ctrl+T)" aria-label="Новая вкладка">+</button>
       <div class="window-drag"></div>
     </header>
 
     <aside class="rail" aria-label="Боковая панель">
-      <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка">⌂</button>
-      <button id="bookmarks" class="rail-button" title="Закладки" aria-label="Закладки">★</button>
-      <button id="history" class="rail-button" title="История" aria-label="История">◷</button>
+      <button id="home" class="rail-button active" title="Новая вкладка" aria-label="Новая вкладка"><span class="rail-icon">⌂</span><span class="rail-label">Старт</span></button>
+      <button id="bookmarks" class="rail-button" title="Закладки" aria-label="Закладки"><span class="rail-icon">★</span><span class="rail-label">Закладки</span></button>
+      <button id="history" class="rail-button history-button" title="История" aria-label="История"><span class="rail-icon">◷</span><span class="rail-label">История</span></button>
       <div class="rail-spacer"></div>
-      <button id="settings" class="rail-button" title="Настройки" aria-label="Настройки">⚙</button>
+      <button id="settings" class="rail-button" title="Настройки" aria-label="Настройки"><span class="rail-icon">⚙</span><span class="rail-label">Настройки</span></button>
     </aside>
 
     <nav class="toolbar" aria-label="Навигация">
@@ -82,7 +85,7 @@
         </label>
       </div>
       <button id="open-downloads" class="setting-action">Открыть папку загрузок</button>
-      <div class="settings-version">BARLAS Browser</div>
+      <div class="settings-version"><strong>BARLAS BIT TECHNOLOGY</strong><span>BARLAS Browser</span></div>
     </section>
 
     <div id="toast" class="toast" role="status" hidden></div>

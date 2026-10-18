@@ -23,19 +23,20 @@ function sidebarSvg() {
     <defs><linearGradient id="b" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#15171c"/><stop offset="1" stop-color="#050608"/></linearGradient><radialGradient id="a"><stop stop-color="#ed1c2455"/><stop offset="1" stop-color="#ed1c2400"/></radialGradient></defs>
     <rect width="164" height="314" fill="url(#b)"/><circle cx="82" cy="88" r="75" fill="url(#a)"/>
     <g fill="#ed1c24"><circle cx="59" cy="73" r="21"/><circle cx="105" cy="73" r="21"/><circle cx="82" cy="113" r="21"/></g>
-    <text x="82" y="171" text-anchor="middle" fill="#ffffff" font-family="Segoe UI,Arial" font-size="22" font-weight="700" letter-spacing="2">BARLAS</text>
-    <text x="82" y="194" text-anchor="middle" fill="#8e929a" font-family="Segoe UI,Arial" font-size="10">BROWSER</text>
+    <text x="82" y="166" text-anchor="middle" fill="#ffffff" font-family="Segoe UI,Arial" font-size="19" font-weight="700" letter-spacing="1.5">BARLAS BIT</text>
+    <text x="82" y="187" text-anchor="middle" fill="#ed1c24" font-family="Segoe UI,Arial" font-size="8" font-weight="700" letter-spacing="2">TECHNOLOGY</text>
+    <text x="82" y="205" text-anchor="middle" fill="#8e929a" font-family="Segoe UI,Arial" font-size="8">BARLAS BROWSER</text>
     <rect x="30" y="218" width="104" height="1" fill="#34373e"/>
     <text x="82" y="244" text-anchor="middle" fill="#c6c9cf" font-family="Segoe UI,Arial" font-size="9">THINK AHEAD.</text>
     <text x="82" y="259" text-anchor="middle" fill="#c6c9cf" font-family="Segoe UI,Arial" font-size="9">ACT BEYOND.</text>
-    <text x="82" y="294" text-anchor="middle" fill="#5f646d" font-family="Segoe UI,Arial" font-size="8">BARLAS BIT</text>
+    <text x="82" y="294" text-anchor="middle" fill="#5f646d" font-family="Segoe UI,Arial" font-size="8">BARLAS BIT TECHNOLOGY</text>
   </svg>`;
 }
 
 function headerSvg() {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="150" height="57" viewBox="0 0 150 57">
     <rect width="150" height="57" fill="#0b0c0f"/><g fill="#ed1c24"><circle cx="22" cy="22" r="8"/><circle cx="40" cy="22" r="8"/><circle cx="31" cy="38" r="8"/></g>
-    <text x="57" y="28" fill="#ffffff" font-family="Segoe UI,Arial" font-size="15" font-weight="700" letter-spacing="1">BARLAS</text><text x="57" y="42" fill="#8e929a" font-family="Segoe UI,Arial" font-size="8">BROWSER</text>
+    <text x="57" y="25" fill="#ffffff" font-family="Segoe UI,Arial" font-size="13" font-weight="700" letter-spacing="1">BARLAS BIT</text><text x="57" y="38" fill="#ed1c24" font-family="Segoe UI,Arial" font-size="7" font-weight="700" letter-spacing="1.4">TECHNOLOGY</text><text x="57" y="49" fill="#8e929a" font-family="Segoe UI,Arial" font-size="6">BARLAS BROWSER</text>
   </svg>`;
 }
 
