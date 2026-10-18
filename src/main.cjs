@@ -12,6 +12,7 @@ const {
   supportedSystemLanguage
 } = require('./localization.cjs');
 const { safeLanguage, sanitizeBrowserData } = require('./browser-data.cjs');
+const { checkForUpdate } = require('./updater.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
@@ -63,7 +64,13 @@ const EN_INTERFACE_COPY = Object.freeze({
   zoomReset: 'Reset zoom',
   fullscreen: 'Fullscreen',
   about: 'About BARLAS Browser',
-  saved: 'Saved'
+  saved: 'Saved',
+  updateAvailable: 'A new BARLAS Browser version is available',
+  checkUpdates: 'Check for updates',
+  downloadUpdate: 'Download update',
+  upToDate: 'BARLAS Browser is up to date',
+  updateError: 'Could not check for updates',
+  recentlyClosed: 'Recently closed'
 });
 
 const MAIN_UI_COPY = {
@@ -125,6 +132,9 @@ let localeState = { language: 'en', countryCode: '', source: 'system', messages:
 let browserData = sanitizeBrowserData();
 let saveQueue = Promise.resolve();
 let restoringSession = false;
+let updateState = { status: 'idle', latestVersion: '', downloadUrl: '', pageUrl: '', checkedAt: 0 };
+let downloads = [];
+let quittingAfterSave = false;
 
 function settingsPath() {
   return path.join(app.getPath('userData'), 'locale.json');
@@ -316,8 +326,39 @@ function state() {
     zoomPercent: Math.round((activeTab()?.view.webContents.getZoomFactor() || 1) * 100),
     bookmarks: browserData.bookmarks,
     history: browserData.history,
+    recentlyClosed: browserData.recentlyClosed,
+    downloads: downloads.map(({ item, ...download }) => download),
+    update: updateState,
     activeBookmarked: browserData.bookmarks.some((bookmark) => bookmark.url === activeTab()?.displayUrl)
   };
+}
+
+async function refreshUpdateState() {
+  updateState = { ...updateState, status: 'checking' };
+  broadcast();
+  try {
+    const available = await checkForUpdate(app.getVersion());
+    updateState = available
+      ? { status: 'available', latestVersion: available.version, downloadUrl: available.downloadUrl, pageUrl: available.pageUrl, checkedAt: Date.now() }
+      : { status: 'current', latestVersion: app.getVersion(), downloadUrl: '', pageUrl: '', checkedAt: Date.now() };
+  } catch {
+    updateState = { ...updateState, status: 'error', checkedAt: Date.now() };
+  }
+  broadcast();
+  return updateState;
+}
+
+function downloadUpdate() {
+  if (updateState.status !== 'available') return false;
+  if (updateState.downloadUrl) {
+    session.fromPartition('persist:barlas-browser').downloadURL(updateState.downloadUrl);
+    return true;
+  }
+  if (updateState.pageUrl) {
+    shell.openExternal(updateState.pageUrl).catch(() => undefined);
+    return true;
+  }
+  return false;
 }
 
 function broadcast() {
@@ -370,6 +411,11 @@ function wireTab(tab) {
   });
   contents.on('page-title-updated', (_event, title) => {
     tab.title = title || mainCopy('newTab');
+    const latest = browserData.history.find((entry) => entry.url === tab.displayUrl);
+    if (latest) {
+      latest.title = tab.title;
+      persistBrowserData();
+    }
     broadcast();
   });
   contents.on('page-favicon-updated', (_event, favicons) => {
@@ -395,6 +441,7 @@ function wireTab(tab) {
   });
   contents.on('did-navigate-in-page', (_event, url) => {
     tab.displayUrl = url;
+    recordHistory(tab);
     persistBrowserData();
     broadcast();
   });
@@ -425,6 +472,9 @@ function handleShortcut(event, input) {
     event.preventDefault();
     window.webContents.focus();
     window.webContents.send('browser:find');
+  } else if (command && input.shift && key === 't') {
+    event.preventDefault();
+    reopenClosedTab();
   } else if (command && key === 't') {
     event.preventDefault();
     createTab();
@@ -492,12 +542,24 @@ function closeTab(id) {
   if (!tab) return false;
   const ordered = [...tabs.keys()];
   const index = ordered.indexOf(numericId);
+  if (/^https?:\/\//.test(tab.displayUrl)) {
+    browserData.recentlyClosed.unshift({ title: tab.title || tab.displayUrl, url: tab.displayUrl, closedAt: Date.now() });
+    browserData.recentlyClosed = browserData.recentlyClosed.slice(0, 25);
+  }
   if (window) window.contentView.removeChildView(tab.view);
   tab.view.webContents.close({ waitForBeforeUnload: false });
   tabs.delete(numericId);
   if (tabs.size === 0) return createTab();
   if (activeTabId === numericId) selectTab(ordered[index + 1] ?? ordered[index - 1]);
   broadcast();
+  persistBrowserData();
+  return true;
+}
+
+function reopenClosedTab() {
+  const entry = browserData.recentlyClosed.shift();
+  if (!entry) return false;
+  createTab(entry.url);
   persistBrowserData();
   return true;
 }
@@ -578,9 +640,10 @@ function showBrowserMenu() {
   if (!window) return;
   const template = [
     { label: mainCopy('newTab'), accelerator: 'CmdOrCtrl+T', click: () => createTab() },
+    { label: mainCopy('recentlyClosed'), accelerator: 'CmdOrCtrl+Shift+T', enabled: browserData.recentlyClosed.length > 0, click: () => reopenClosedTab() },
     { label: mainCopy('bookmarks'), click: () => window.webContents.send('browser:open-bookmarks') },
     { label: mainCopy('history'), accelerator: 'CmdOrCtrl+H', click: () => window.webContents.send('browser:open-history') },
-    { label: mainCopy('downloads'), click: () => shell.openPath(app.getPath('downloads')) },
+    { label: mainCopy('downloads'), click: () => window.webContents.send('browser:open-downloads-panel') },
     { type: 'separator' },
     {
       label: `${mainCopy('zoom')} (${state().zoomPercent}%)`,
@@ -593,7 +656,8 @@ function showBrowserMenu() {
     { label: mainCopy('fullscreen'), type: 'checkbox', checked: window.isFullScreen(), click: () => window.setFullScreen(!window.isFullScreen()) },
     { label: mainCopy('settings'), click: () => window.webContents.send('browser:open-settings') },
     { type: 'separator' },
-    { label: mainCopy('about'), click: () => dialog.showMessageBox(window, { type: 'info', title: 'BARLAS Browser', message: `BARLAS Browser ${app.getVersion()}`, detail: `Chromium ${process.versions.chrome}\nElectron ${process.versions.electron}` }) }
+    { label: mainCopy('checkUpdates'), click: () => refreshUpdateState() },
+    { label: mainCopy('about'), click: () => dialog.showMessageBox(window, { type: 'info', title: 'BARLAS Browser', message: `BARLAS Browser ${app.getVersion()}`, detail: `Chromium ${process.versions.chrome}\nElectron ${process.versions.electron}\nBARLAS BIT TECHNOLOGY` }) }
   ];
   Menu.buildFromTemplate(template).popup({ window });
 }
@@ -618,6 +682,17 @@ function installIpc() {
   ipcMain.handle('browser:clear-history', () => clearHistory());
   ipcMain.handle('browser:set-setting', (_event, key, value) => updateSetting(key, value));
   ipcMain.handle('browser:open-downloads', () => shell.openPath(app.getPath('downloads')));
+  ipcMain.handle('browser:show-download', (_event, id) => {
+    const download = downloads.find((entry) => entry.id === Number(id));
+    return download?.savePath ? shell.showItemInFolder(download.savePath) : false;
+  });
+  ipcMain.handle('browser:open-download', (_event, id) => {
+    const download = downloads.find((entry) => entry.id === Number(id));
+    return download?.savePath && download.status === 'completed' ? shell.openPath(download.savePath) : false;
+  });
+  ipcMain.handle('browser:check-updates', () => refreshUpdateState());
+  ipcMain.handle('browser:download-update', () => downloadUpdate());
+  ipcMain.handle('browser:reopen-closed-tab', () => reopenClosedTab());
   ipcMain.handle('browser:show-menu', () => showBrowserMenu());
   ipcMain.on('browser:layout', (_event, value) => {
     if (!value || typeof value !== 'object') return;
@@ -638,6 +713,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 620,
     backgroundColor: '#08090b',
+    icon: path.join(__dirname, '..', 'assets', process.platform === 'win32' ? 'icon.ico' : 'icon.png'),
     title: 'BARLAS Browser',
     titleBarStyle: 'hidden',
     titleBarOverlay: { color: '#0b0c0f', symbolColor: '#d7d9de', height: 40 },
@@ -655,12 +731,16 @@ function createWindow() {
   window.webContents.on('before-input-event', (event, input) => handleShortcut(event, input));
   window.webContents.once('did-finish-load', () => {
     const saved = browserData.settings.restoreSession ? browserData.session.urls : [];
-    if (!saved.length) return createTab();
-    restoringSession = true;
-    const ids = saved.map((url) => createTab(url, false));
-    selectTab(ids[browserData.session.activeIndex] || ids[0]);
-    restoringSession = false;
-    persistBrowserData();
+    if (!saved.length) {
+      createTab();
+    } else {
+      restoringSession = true;
+      const ids = saved.map((url) => createTab(url, false));
+      selectTab(ids[browserData.session.activeIndex] || ids[0]);
+      restoringSession = false;
+      persistBrowserData();
+    }
+    setTimeout(refreshUpdateState, 1500);
   });
 }
 
@@ -671,14 +751,50 @@ app.whenReady().then(async () => {
   browserSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
   browserSession.setPermissionCheckHandler(() => false);
   browserSession.on('will-download', (_event, item) => {
+    const download = {
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      filename: item.getFilename(),
+      savePath: item.getSavePath(),
+      status: 'progressing',
+      receivedBytes: item.getReceivedBytes(),
+      totalBytes: item.getTotalBytes(),
+      startedAt: Date.now(),
+      item
+    };
+    downloads.unshift(download);
+    downloads = downloads.slice(0, 100);
+    broadcast();
+    item.on('updated', (_updatedEvent, status) => {
+      download.status = status;
+      download.receivedBytes = item.getReceivedBytes();
+      download.totalBytes = item.getTotalBytes();
+      download.savePath = item.getSavePath();
+      broadcast();
+    });
     item.once('done', (_doneEvent, status) => {
-      if (status === 'completed') shell.showItemInFolder(item.getSavePath());
+      download.status = status;
+      download.receivedBytes = item.getReceivedBytes();
+      download.totalBytes = item.getTotalBytes();
+      download.savePath = item.getSavePath();
+      delete download.item;
+      broadcast();
     });
   });
   installIpc();
   createWindow();
+  setInterval(refreshUpdateState, 6 * 60 * 60 * 1000).unref();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
+  });
+});
+
+app.on('before-quit', (event) => {
+  if (quittingAfterSave) return;
+  event.preventDefault();
+  persistBrowserData();
+  saveQueue.finally(() => {
+    quittingAfterSave = true;
+    app.quit();
   });
 });
 

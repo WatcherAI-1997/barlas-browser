@@ -23,6 +23,7 @@ function sanitizeBrowserData(value) {
   const history = Array.isArray(input.history) ? input.history : [];
   const session = input.session && typeof input.session === 'object' ? input.session : {};
   const settings = input.settings && typeof input.settings === 'object' ? input.settings : {};
+  const recentlyClosed = Array.isArray(input.recentlyClosed) ? input.recentlyClosed : [];
   const urls = Array.isArray(session.urls) ? session.urls.map(safeWebUrl).filter(Boolean).slice(0, 50) : [];
 
   return {
@@ -43,6 +44,15 @@ function sanitizeBrowserData(value) {
       .filter((entry) => entry.url && Number.isFinite(entry.visitedAt) && entry.visitedAt > 0)
       .sort((left, right) => right.visitedAt - left.visitedAt)
       .slice(0, 5000),
+    recentlyClosed: recentlyClosed
+      .map((entry) => ({
+        title: String(entry?.title || '').trim().slice(0, 200),
+        url: safeWebUrl(entry?.url),
+        closedAt: Number(entry?.closedAt)
+      }))
+      .filter((entry) => entry.url && Number.isFinite(entry.closedAt) && entry.closedAt > 0)
+      .sort((left, right) => right.closedAt - left.closedAt)
+      .slice(0, 25),
     session: {
       urls,
       activeIndex: urls.length ? Math.min(Math.max(Number.parseInt(session.activeIndex, 10) || 0, 0), urls.length - 1) : 0

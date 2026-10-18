@@ -34,4 +34,6 @@ test('brand and installer sources identify Barlas Bit Technology', () => {
   assert.match(installer, /MUI_BGCOLOR "0B0C0F"/);
   assert.match(installer, /MUI_FINISHPAGE_LINK_COLOR "ED1C24"/);
   assert.match(installer, /BARLAS BIT TECHNOLOGY/);
+  assert.match(installer, /Добавить ярлык на рабочий стол/);
+  assert.match(installer, /BarlasCreateDesktopShortcut/);
 });

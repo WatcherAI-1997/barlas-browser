@@ -30,7 +30,11 @@ boundary, and a focused roadmap for everyday browsing.
 - Manual language selection including 35 Turkic languages and Mongolian
 - Local bookmarks with a dedicated sidebar
 - Browsing history with search, individual removal, full clearing, and `Ctrl+H`
+- Date-grouped history persisted across browser updates and restarts (up to 5,000 entries)
 - Automatic restore of open web tabs after restart
+- Reopen the last closed tab with `Ctrl/Cmd + Shift + T`
+- Download center with live progress, open-file, and show-in-folder actions
+- Automatic GitHub release checks with an in-browser update notice and installer download
 - Working settings for search engine, interface language, and startup restore
 - Browser menu with downloads, zoom, fullscreen, and version information
 - Back, forward, reload, stop, home, and common keyboard shortcuts
@@ -46,8 +50,9 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.2.5-Windows-x64.exe`, choose an installation
-directory, and complete the setup wizard.
+Run `BARLAS-Browser-Setup-0.3.0-Windows-x64.exe`, choose an installation
+directory, and complete the black-and-red setup wizard. On the final page you
+can optionally add a desktop shortcut before launching the browser.
 
 The alpha installer is not yet code-signed, so Windows SmartScreen may identify
 it as an unknown publisher. Verify the SHA-256 checksum shown in the release
@@ -105,6 +110,7 @@ shell. More detail is available in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 | `Ctrl/Cmd + R` | Reload the current page |
 | `Ctrl/Cmd + D` | Add or remove the current bookmark |
 | `Ctrl/Cmd + H` | Open browsing history |
+| `Ctrl/Cmd + Shift + T` | Reopen the last closed tab |
 | `Alt + Left/Right` | Navigate through page history |
 
 ## Browsing history
@@ -115,9 +121,10 @@ be searched, cleared completely, or edited one item at a time.
 
 ## Project status
 
-Version `0.2.x` adds the first daily-browsing features. Closed-tab restore,
-workspaces, tab groups, per-site permissions, content blocking, and
-signed installers are tracked in the [roadmap](docs/ROADMAP.md).
+Version `0.3.x` adds the first daily-browsing features, download management,
+closed-tab recovery, and update discovery. Workspaces, tab groups, per-site
+permissions, content blocking, and signed installers are tracked in the
+[roadmap](docs/ROADMAP.md).
 
 ## Contributing
 
@@ -136,8 +143,9 @@ BARLAS Browser — открытый самостоятельный desktop-бр�
 компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
 вкладки, Google-поиск из адресной строки, автоматический выбор основного языка
 для 251 страны и территории (79 языков),
-локальные закладки, историю с поиском и очисткой, восстановление открытых вкладок,
-загрузки, горячие клавиши
+локальные закладки, постоянную историю по датам с поиском и очисткой,
+восстановление открытых и недавно закрытых вкладок, центр загрузок,
+уведомления об обновлениях, горячие клавиши
 и изоляцию сайтов. В браузере нет встроенного ИИ и
 зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,

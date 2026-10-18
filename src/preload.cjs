@@ -19,6 +19,11 @@ contextBridge.exposeInMainWorld('barlas', {
   clearHistory: () => ipcRenderer.invoke('browser:clear-history'),
   setSetting: (key, value) => ipcRenderer.invoke('browser:set-setting', key, value),
   openDownloads: () => ipcRenderer.invoke('browser:open-downloads'),
+  showDownload: (id) => ipcRenderer.invoke('browser:show-download', id),
+  openDownload: (id) => ipcRenderer.invoke('browser:open-download', id),
+  checkUpdates: () => ipcRenderer.invoke('browser:check-updates'),
+  downloadUpdate: () => ipcRenderer.invoke('browser:download-update'),
+  reopenClosedTab: () => ipcRenderer.invoke('browser:reopen-closed-tab'),
   showMenu: () => ipcRenderer.invoke('browser:show-menu'),
   reportLayout: (layout) => ipcRenderer.send('browser:layout', layout),
   onState: (callback) => {
@@ -40,6 +45,11 @@ contextBridge.exposeInMainWorld('barlas', {
     const handler = () => callback();
     ipcRenderer.on('browser:open-history', handler);
     return () => ipcRenderer.removeListener('browser:open-history', handler);
+  },
+  onOpenDownloads: (callback) => {
+    const handler = () => callback();
+    ipcRenderer.on('browser:open-downloads-panel', handler);
+    return () => ipcRenderer.removeListener('browser:open-downloads-panel', handler);
   },
   onOpenSettings: (callback) => {
     const handler = () => callback();

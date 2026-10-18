@@ -7,6 +7,7 @@ let translatedCopy = {};
 let bookmarksOpen = false;
 let historyOpen = false;
 let settingsOpen = false;
+let downloadsOpen = false;
 
 const TURKIC_LANGUAGES = [
   ['tr', 'Türkçe'], ['az', 'Azərbaycanca'], ['kk', 'Қазақша'], ['ky', 'Кыргызча'],
@@ -26,11 +27,11 @@ const WORLD_LANGUAGE_CODES = [
 
 const EXTRA_COPY = {
   az: { settings: 'Parametrlər', searchEngine: 'Axtarış sistemi', startup: 'Başlanğıc', restoreTabs: 'Yenidən başladıqda açıq tabları bərpa et', language: 'İnterfeys dili', automatic: 'Avtomatik (ölkə və sistem)', languageNote: 'Avtomatik rejim ölkənizi və əməliyyat sisteminin dilini istifadə edir.', downloads: 'Yükləmələr qovluğunu aç', saved: 'Saxlanıldı', history: 'Tarixçə', searchHistory: 'Tarixçədə axtar', clearHistory: 'Tarixçəni təmizlə', emptyHistory: 'Tarixçə hələ boşdur', removeHistory: 'Tarixçədən sil' },
-  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Open downloads folder', saved: 'Saved', history: 'History', searchHistory: 'Search history', clearHistory: 'Clear browsing history', emptyHistory: 'No browsing history yet', removeHistory: 'Remove from history' },
+  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Downloads', openDownloads: 'Open downloads folder', emptyDownloads: 'No downloads in this session yet', openFile: 'Open file', showFile: 'Show in folder', saved: 'Saved', history: 'History', searchHistory: 'Search history', clearHistory: 'Clear browsing history', emptyHistory: 'No browsing history yet', removeHistory: 'Remove from history', updates: 'Updates', checkUpdates: 'Check for updates', downloadUpdate: 'Download update', updateAvailable: 'Version {version} is available', upToDate: 'BARLAS Browser is up to date', updateError: 'Could not check for updates', checkingUpdates: 'Checking for updates…', update: 'Update' },
   kk: { settings: 'Баптаулар', searchEngine: 'Іздеу жүйесі', startup: 'Іске қосу', restoreTabs: 'Қайта іске қосқанда ашық беттерді қалпына келтіру', language: 'Интерфейс тілі', automatic: 'Автоматты (ел және жүйе)', languageNote: 'Автоматты режим елді және операциялық жүйе тілін пайдаланады.', downloads: 'Жүктеулер қалтасын ашу', saved: 'Сақталды', history: 'Тарих', searchHistory: 'Тарихтан іздеу', clearHistory: 'Тарихты тазалау', emptyHistory: 'Тарих әзірге бос', removeHistory: 'Тарихтан жою' },
   ky: { settings: 'Жөндөөлөр', searchEngine: 'Издөө тутуму', startup: 'Иштетүү', restoreTabs: 'Кайра иштеткенде ачык өтмөктөрдү калыбына келтирүү', language: 'Интерфейс тили', automatic: 'Автоматтык (өлкө жана система)', languageNote: 'Автоматтык режим өлкөнү жана операциялык тутумдун тилин колдонот.', downloads: 'Жүктөөлөр папкасын ачуу', saved: 'Сакталды', history: 'Тарых', searchHistory: 'Тарыхтан издөө', clearHistory: 'Тарыхты тазалоо', emptyHistory: 'Тарых азырынча бош', removeHistory: 'Тарыхтан өчүрүү' },
   mn: { settings: 'Тохиргоо', searchEngine: 'Хайлтын систем', startup: 'Эхлүүлэх', restoreTabs: 'Дахин эхлүүлэхэд нээлттэй табуудыг сэргээх', language: 'Интерфейсийн хэл', automatic: 'Автомат (улс ба систем)', languageNote: 'Автомат горим улс болон үйлдлийн системийн хэлийг ашиглана.', downloads: 'Таталтын хавтсыг нээх', saved: 'Хадгаллаа', history: 'Түүх', searchHistory: 'Түүхээс хайх', clearHistory: 'Түүхийг арилгах', emptyHistory: 'Түүх хоосон байна', removeHistory: 'Түүхээс устгах' },
-  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Открыть папку загрузок', saved: 'Сохранено', history: 'История', searchHistory: 'Поиск в истории', clearHistory: 'Очистить историю', emptyHistory: 'История пока пуста', removeHistory: 'Удалить из истории' },
+  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Загрузки', openDownloads: 'Открыть папку загрузок', emptyDownloads: 'Загрузок в этом сеансе пока нет', openFile: 'Открыть файл', showFile: 'Показать в папке', saved: 'Сохранено', history: 'История', searchHistory: 'Поиск в истории', clearHistory: 'Очистить историю', emptyHistory: 'История пока пуста', removeHistory: 'Удалить из истории', updates: 'Обновления', checkUpdates: 'Проверить обновления', downloadUpdate: 'Скачать обновление', updateAvailable: 'Доступна версия {version}', upToDate: 'Установлена последняя версия BARLAS Browser', updateError: 'Не удалось проверить обновления', checkingUpdates: 'Проверяем обновления…', update: 'Обновить' },
   tr: { settings: 'Ayarlar', searchEngine: 'Arama motoru', startup: 'Başlangıç', restoreTabs: 'Yeniden başlatınca açık sekmeleri geri yükle', language: 'Arayüz dili', automatic: 'Otomatik (ülke ve sistem)', languageNote: 'Otomatik mod ülkenizi ve işletim sistemi dilini kullanır.', downloads: 'İndirilenler klasörünü aç', saved: 'Kaydedildi', history: 'Geçmiş', searchHistory: 'Geçmişte ara', clearHistory: 'Geçmişi temizle', emptyHistory: 'Geçmiş henüz boş', removeHistory: 'Geçmişten kaldır' },
   uz: { settings: 'Sozlamalar', searchEngine: 'Qidiruv tizimi', startup: 'Ishga tushirish', restoreTabs: 'Qayta ishga tushganda ochiq varaqlarni tiklash', language: 'Interfeys tili', automatic: 'Avtomatik (mamlakat va tizim)', languageNote: 'Avtomatik rejim mamlakat va operatsion tizim tilidan foydalanadi.', downloads: 'Yuklamalar jildini ochish', saved: 'Saqlandi', history: 'Tarix', searchHistory: 'Tarixdan qidirish', clearHistory: 'Tarixni tozalash', emptyHistory: 'Tarix hozircha bo‘sh', removeHistory: 'Tarixdan o‘chirish' }
 };
@@ -109,6 +110,14 @@ function applyLocale(locale) {
   $('#clear-history').textContent = t('clearHistory');
   $('#history-empty').textContent = t('emptyHistory');
   $('#close-history').ariaLabel = bt('close');
+  $('#downloads').title = t('downloads');
+  $('#downloads').ariaLabel = t('downloads');
+  $('#downloads .rail-label').textContent = t('downloads');
+  $('#downloads-panel').ariaLabel = t('downloads');
+  $('#downloads-title').textContent = t('downloads');
+  $('#downloads-empty').textContent = t('emptyDownloads');
+  $('#open-downloads-folder').textContent = t('openDownloads');
+  $('#close-downloads').ariaLabel = bt('close');
   $('#settings').title = t('settings');
   $('#settings').ariaLabel = t('settings');
   $('#settings .rail-label').textContent = t('settings');
@@ -120,7 +129,11 @@ function applyLocale(locale) {
   $('#language-note').textContent = t('languageNote');
   $('#startup-label').textContent = t('startup');
   $('#restore-session-label').textContent = t('restoreTabs');
-  $('#open-downloads').textContent = t('downloads');
+  $('#open-downloads').textContent = t('openDownloads');
+  $('#update-title').textContent = t('updates');
+  $('#check-updates').textContent = t('checkUpdates');
+  $('#download-update').textContent = t('downloadUpdate');
+  $('#update-button-label').textContent = t('update');
   $('.toolbar').ariaLabel = t('navigation');
   for (const [id, key] of [['back', 'back'], ['forward', 'forward'], ['menu', 'menu']]) {
     $("#" + id).title = t(key);
@@ -144,7 +157,16 @@ function renderHistory() {
   });
   $('#history-empty').hidden = entries.length > 0;
   $('#history-empty').textContent = (browserState.history || []).length ? t('searchHistory') : t('emptyHistory');
+  let lastDay = '';
   for (const entry of entries) {
+    const day = new Intl.DateTimeFormat(language, { dateStyle: 'long' }).format(entry.visitedAt);
+    if (day !== lastDay) {
+      const heading = document.createElement('h3');
+      heading.className = 'history-day';
+      heading.textContent = day;
+      list.append(heading);
+      lastDay = day;
+    }
     const item = document.createElement('div');
     item.className = 'history-item';
     const time = document.createElement('span');
@@ -172,6 +194,72 @@ function renderHistory() {
     item.append(time, link, remove);
     list.append(item);
   }
+}
+
+function formatBytes(value) {
+  const bytes = Number(value) || 0;
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${(bytes / 1024).toFixed(1)} KB`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024 ** 3).toFixed(1)} GB`;
+}
+
+function renderDownloads() {
+  const list = $('#downloads-list');
+  list.replaceChildren();
+  const downloads = browserState.downloads || [];
+  $('#downloads-empty').hidden = downloads.length > 0;
+  $('#download-dot').hidden = !downloads.some((download) => download.status === 'progressing');
+  for (const download of downloads) {
+    const card = document.createElement('div');
+    card.className = 'download-item';
+    const icon = document.createElement('span');
+    icon.className = 'download-icon';
+    icon.textContent = download.status === 'completed' ? '✓' : (download.status === 'progressing' ? '↓' : '!');
+    const body = document.createElement('div');
+    body.className = 'download-body';
+    const name = document.createElement('strong');
+    name.textContent = download.filename;
+    const details = document.createElement('span');
+    const total = Number(download.totalBytes) || 0;
+    details.textContent = download.status === 'progressing'
+      ? `${formatBytes(download.receivedBytes)}${total ? ` / ${formatBytes(total)}` : ''}`
+      : download.status;
+    body.append(name, details);
+    if (total && download.status === 'progressing') {
+      const progress = document.createElement('progress');
+      progress.max = total;
+      progress.value = Number(download.receivedBytes) || 0;
+      body.append(progress);
+    }
+    const actions = document.createElement('div');
+    actions.className = 'download-actions';
+    if (download.status === 'completed') {
+      const open = document.createElement('button');
+      open.textContent = t('openFile');
+      open.addEventListener('click', () => window.barlas.openDownload(download.id));
+      actions.append(open);
+    }
+    const show = document.createElement('button');
+    show.textContent = t('showFile');
+    show.disabled = !download.savePath;
+    show.addEventListener('click', () => window.barlas.showDownload(download.id));
+    actions.append(show);
+    card.append(icon, body, actions);
+    list.append(card);
+  }
+}
+
+function renderUpdate() {
+  const update = browserState.update || { status: 'idle' };
+  const available = update.status === 'available';
+  $('#update-button').hidden = !available;
+  $('#download-update').hidden = !available;
+  $('#check-updates').disabled = update.status === 'checking';
+  if (available) $('#update-status').textContent = t('updateAvailable').replace('{version}', update.latestVersion || '');
+  else if (update.status === 'current') $('#update-status').textContent = t('upToDate');
+  else if (update.status === 'error') $('#update-status').textContent = t('updateError');
+  else $('#update-status').textContent = t('checkingUpdates');
 }
 
 function renderBookmarks() {
@@ -259,6 +347,8 @@ function render(state) {
   renderTabs();
   renderBookmarks();
   renderHistory();
+  renderDownloads();
+  renderUpdate();
   populateLanguages();
   $('#search-engine').value = state.settings?.searchEngine || 'google';
   $('#restore-session').checked = state.settings?.restoreSession !== false;
@@ -280,46 +370,67 @@ function render(state) {
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: settingsOpen ? 436 : (historyOpen ? 456 : (bookmarksOpen ? 376 : 76)), y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: settingsOpen ? 436 : (historyOpen ? 456 : (downloadsOpen ? 496 : (bookmarksOpen ? 376 : 76))), y: 102, right: 0, bottom: 0 });
 }
 
 function setBookmarksOpen(open) {
   bookmarksOpen = open;
-  if (open) { settingsOpen = false; historyOpen = false; }
+  if (open) { settingsOpen = false; historyOpen = false; downloadsOpen = false; }
   $('#bookmarks-panel').hidden = !open;
   $('#settings-panel').hidden = true;
   $('#history-panel').hidden = true;
+  $('#downloads-panel').hidden = true;
   $('#bookmarks').classList.toggle('active', open);
   $('#settings').classList.remove('active');
   $('#history').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !settingsOpen && !historyOpen);
+  $('#downloads').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !settingsOpen && !historyOpen && !downloadsOpen);
   requestLayout();
 }
 
 function setHistoryOpen(open) {
   historyOpen = open;
-  if (open) { bookmarksOpen = false; settingsOpen = false; }
+  if (open) { bookmarksOpen = false; settingsOpen = false; downloadsOpen = false; }
   $('#history-panel').hidden = !open;
   $('#bookmarks-panel').hidden = true;
   $('#settings-panel').hidden = true;
+  $('#downloads-panel').hidden = true;
   $('#history').classList.toggle('active', open);
   $('#bookmarks').classList.remove('active');
   $('#settings').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !settingsOpen && !bookmarksOpen);
+  $('#downloads').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !settingsOpen && !bookmarksOpen && !downloadsOpen);
   requestLayout();
   if (open) $('#history-search').focus();
 }
 
 function setSettingsOpen(open) {
   settingsOpen = open;
-  if (open) { bookmarksOpen = false; historyOpen = false; }
+  if (open) { bookmarksOpen = false; historyOpen = false; downloadsOpen = false; }
   $('#settings-panel').hidden = !open;
   $('#bookmarks-panel').hidden = true;
   $('#history-panel').hidden = true;
+  $('#downloads-panel').hidden = true;
   $('#settings').classList.toggle('active', open);
   $('#bookmarks').classList.remove('active');
   $('#history').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen);
+  $('#downloads').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen && !downloadsOpen);
+  requestLayout();
+}
+
+function setDownloadsOpen(open) {
+  downloadsOpen = open;
+  if (open) { bookmarksOpen = false; historyOpen = false; settingsOpen = false; }
+  $('#downloads-panel').hidden = !open;
+  $('#bookmarks-panel').hidden = true;
+  $('#history-panel').hidden = true;
+  $('#settings-panel').hidden = true;
+  $('#downloads').classList.toggle('active', open);
+  $('#bookmarks').classList.remove('active');
+  $('#history').classList.remove('active');
+  $('#settings').classList.remove('active');
+  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen && !settingsOpen);
   requestLayout();
 }
 
@@ -333,8 +444,10 @@ $('#new-tab').addEventListener('click', () => window.barlas.newTab());
 $('#home').addEventListener('click', () => window.barlas.newTab());
 $('#bookmarks').addEventListener('click', () => setBookmarksOpen(!bookmarksOpen));
 $('#history').addEventListener('click', () => setHistoryOpen(!historyOpen));
+$('#downloads').addEventListener('click', () => setDownloadsOpen(!downloadsOpen));
 $('#close-bookmarks').addEventListener('click', () => setBookmarksOpen(false));
 $('#close-history').addEventListener('click', () => setHistoryOpen(false));
+$('#close-downloads').addEventListener('click', () => setDownloadsOpen(false));
 $('#history-search').addEventListener('input', renderHistory);
 $('#clear-history').addEventListener('click', () => window.barlas.clearHistory());
 $('#close-settings').addEventListener('click', () => setSettingsOpen(false));
@@ -357,6 +470,13 @@ $('#interface-language').addEventListener('change', async (event) => {
   showToast(t('saved'));
 });
 $('#open-downloads').addEventListener('click', () => window.barlas.openDownloads());
+$('#open-downloads-folder').addEventListener('click', () => window.barlas.openDownloads());
+$('#check-updates').addEventListener('click', () => window.barlas.checkUpdates());
+$('#download-update').addEventListener('click', async () => {
+  await window.barlas.downloadUpdate();
+  setDownloadsOpen(true);
+});
+$('#update-button').addEventListener('click', () => setSettingsOpen(true));
 window.addEventListener('resize', requestLayout);
 
 let toastTimer;
@@ -375,5 +495,6 @@ window.barlas.onFind(() => {
 });
 window.barlas.onOpenBookmarks(() => setBookmarksOpen(true));
 window.barlas.onOpenHistory(() => setHistoryOpen(true));
+window.barlas.onOpenDownloads(() => setDownloadsOpen(true));
 window.barlas.onOpenSettings(() => setSettingsOpen(true));
 window.barlas.getState().then(render);

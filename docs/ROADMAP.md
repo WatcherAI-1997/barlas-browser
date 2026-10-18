@@ -17,8 +17,8 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [ ] Bookmark import
 - [x] Searchable browsing history
 - [x] Open-session restore
-- [ ] Closed-tab restore
-- [ ] Download manager
+- [x] Closed-tab restore
+- [x] Download center with live progress and file actions
 - [ ] Per-site permission controls
 - [x] Configurable search provider
 
@@ -27,7 +27,8 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [ ] Tracker and ad blocking
 - [ ] Profile isolation and private windows
 - [ ] Safe browsing checks
-- [ ] Automatic updates
+- [x] Automatic release checks and installer download
+- [ ] Signed, unattended in-place updates
 - [ ] Crash recovery
 - [ ] Signed Windows installer
 

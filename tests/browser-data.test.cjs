@@ -32,7 +32,16 @@ test('sanitizes bookmarks, removes duplicates and clamps session index', () => {
   ]);
   assert.deepEqual(data.session.urls, ['https://one.example/', 'https://two.example/']);
   assert.equal(data.session.activeIndex, 1);
+  assert.deepEqual(data.recentlyClosed, []);
   assert.deepEqual(data.settings, { searchEngine: 'google', restoreSession: true, language: 'auto' });
+});
+
+test('keeps safe recently closed tabs for session recovery', () => {
+  const data = sanitizeBrowserData({ recentlyClosed: [
+    { title: 'Safe', url: 'https://example.com', closedAt: 200 },
+    { title: 'Unsafe', url: 'file:///secret', closedAt: 300 }
+  ] });
+  assert.deepEqual(data.recentlyClosed, [{ title: 'Safe', url: 'https://example.com/', closedAt: 200 }]);
 });
 
 test('sanitizes persistent browser settings', () => {
