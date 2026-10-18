@@ -38,6 +38,7 @@ boundary, and a focused roadmap for everyday browsing.
 - Built-in EasyList/EasyPrivacy ad and tracker blocking with an offline engine and weekly filter refresh
 - Working settings for search engine, interface language, and startup restore
 - Browser menu with downloads, zoom, fullscreen, and version information
+- HTML5 video-player fullscreen with full-window rendering and `Esc` restore
 - Back, forward, reload, stop, home, and common keyboard shortcuts
 - Popup links converted into controlled tabs
 - Persistent browser profile and native downloads
@@ -51,7 +52,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.3.3-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.3.4-Windows-x64.exe`, choose an installation
 directory, and complete the black-and-red setup wizard. On the final page you
 can optionally add a desktop shortcut before launching the browser.
 

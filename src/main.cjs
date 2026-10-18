@@ -14,6 +14,7 @@ const {
   supportedSystemLanguage
 } = require('./localization.cjs');
 const { safeLanguage, sanitizeBrowserData } = require('./browser-data.cjs');
+const { shouldGrantPermission } = require('./permissions.cjs');
 
 const DEFAULT_LAYOUT = { x: 0, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
@@ -143,6 +144,8 @@ let adBlocker = null;
 let adBlockActive = false;
 let blockedRequestCount = 0;
 let adBlockBroadcastTimer = null;
+let htmlFullscreenTabId = null;
+let windowWasFullscreenBeforeHtml = false;
 
 function settingsPath() {
   return path.join(app.getPath('userData'), 'locale.json');
@@ -500,6 +503,10 @@ function updateBounds() {
   const tab = activeTab();
   if (!window || !tab) return;
   const [width, height] = window.getContentSize();
+  if (htmlFullscreenTabId === tab.id) {
+    tab.view.setBounds({ x: 0, y: 0, width: Math.max(1, width), height: Math.max(1, height) });
+    return;
+  }
   tab.view.setBounds({
     x: Math.max(0, Math.round(layout.x)),
     y: Math.max(0, Math.round(layout.y)),
@@ -530,6 +537,19 @@ function navigateTab(tab, input) {
 function wireTab(tab) {
   const contents = tab.view.webContents;
   contents.on('before-input-event', (event, input) => handleShortcut(event, input));
+  contents.on('enter-html-full-screen', () => {
+    if (htmlFullscreenTabId === null) windowWasFullscreenBeforeHtml = window.isFullScreen();
+    htmlFullscreenTabId = tab.id;
+    if (!window.isFullScreen()) window.setFullScreen(true);
+    updateBounds();
+  });
+  contents.on('leave-html-full-screen', () => {
+    if (htmlFullscreenTabId !== tab.id) return;
+    htmlFullscreenTabId = null;
+    if (!windowWasFullscreenBeforeHtml && window.isFullScreen()) window.setFullScreen(false);
+    windowWasFullscreenBeforeHtml = false;
+    updateBounds();
+  });
   contents.setWindowOpenHandler(({ url }) => {
     createTab(url, true);
     return { action: 'deny' };
@@ -622,6 +642,18 @@ function handleShortcut(event, input) {
     event.preventDefault();
     window.webContents.focus();
     window.webContents.send('browser:open-history');
+  } else if (command && (key === '+' || key === '=')) {
+    event.preventDefault();
+    changeZoom(0.1);
+  } else if (command && key === '-') {
+    event.preventDefault();
+    changeZoom(-0.1);
+  } else if (command && key === '0') {
+    event.preventDefault();
+    changeZoom(0);
+  } else if (input.key === 'F11') {
+    event.preventDefault();
+    window.setFullScreen(!window.isFullScreen());
   } else if (input.alt && input.key === 'ArrowLeft') {
     event.preventDefault();
     if (activeTab()?.view.webContents.canGoBack()) activeTab().view.webContents.goBack();
@@ -640,6 +672,9 @@ function createTab(url = 'barlas://newtab', activate = true) {
       sandbox: true,
       webSecurity: true,
       allowRunningInsecureContent: false,
+      // BARLAS owns the window transition so WebContentsView bounds and the
+      // browser chrome change atomically on every desktop platform.
+      disableHtmlFullscreenWindowResize: true,
       partition: 'persist:barlas-browser'
     }
   });
@@ -678,6 +713,11 @@ function closeTab(id) {
     browserData.recentlyClosed = browserData.recentlyClosed.slice(0, 25);
   }
   if (window) window.contentView.removeChildView(tab.view);
+  if (htmlFullscreenTabId === numericId) {
+    htmlFullscreenTabId = null;
+    if (!windowWasFullscreenBeforeHtml && window.isFullScreen()) window.setFullScreen(false);
+    windowWasFullscreenBeforeHtml = false;
+  }
   tab.view.webContents.close({ waitForBeforeUnload: false });
   tabs.delete(numericId);
   if (tabs.size === 0) return createTab();
@@ -861,6 +901,8 @@ function createWindow() {
   window.on('resize', updateBounds);
   window.on('maximize', updateBounds);
   window.on('unmaximize', updateBounds);
+  window.on('enter-full-screen', updateBounds);
+  window.on('leave-full-screen', updateBounds);
   window.webContents.on('before-input-event', (event, input) => handleShortcut(event, input));
   window.webContents.once('did-finish-load', () => {
     const saved = browserData.settings.restoreSession ? browserData.session.urls : [];
@@ -881,8 +923,12 @@ app.whenReady().then(async () => {
   browserData = await readBrowserData();
   localeState = await detectLocale(browserData.settings.language);
   const browserSession = session.fromPartition('persist:barlas-browser');
-  browserSession.setPermissionRequestHandler((_webContents, _permission, callback) => callback(false));
-  browserSession.setPermissionCheckHandler(() => false);
+  browserSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
+    callback(shouldGrantPermission(permission, details?.requestingUrl || webContents.getURL()));
+  });
+  browserSession.setPermissionCheckHandler((webContents, permission, requestingOrigin) => (
+    shouldGrantPermission(permission, requestingOrigin || webContents?.getURL())
+  ));
   browserSession.on('will-download', (_event, item) => {
     const download = {
       id: Date.now() + Math.floor(Math.random() * 1000),

@@ -21,6 +21,7 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [x] Download center with live progress and file actions
 - [ ] Per-site permission controls
 - [x] Configurable search provider
+- [x] HTML5 and embedded video-player fullscreen
 
 ## 0.3 — Privacy and reliability
 
