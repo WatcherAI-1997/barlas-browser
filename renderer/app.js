@@ -27,11 +27,11 @@ const WORLD_LANGUAGE_CODES = [
 
 const EXTRA_COPY = {
   az: { settings: 'Parametrlər', searchEngine: 'Axtarış sistemi', startup: 'Başlanğıc', restoreTabs: 'Yenidən başladıqda açıq tabları bərpa et', language: 'İnterfeys dili', automatic: 'Avtomatik (ölkə və sistem)', languageNote: 'Avtomatik rejim ölkənizi və əməliyyat sisteminin dilini istifadə edir.', downloads: 'Yükləmələr qovluğunu aç', saved: 'Saxlanıldı', history: 'Tarixçə', searchHistory: 'Tarixçədə axtar', clearHistory: 'Tarixçəni təmizlə', emptyHistory: 'Tarixçə hələ boşdur', removeHistory: 'Tarixçədən sil' },
-  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Downloads', openDownloads: 'Open downloads folder', emptyDownloads: 'No downloads in this session yet', openFile: 'Open file', showFile: 'Show in folder', saved: 'Saved', history: 'History', searchHistory: 'Search history', clearHistory: 'Clear browsing history', emptyHistory: 'No browsing history yet', removeHistory: 'Remove from history', updates: 'Updates', checkUpdates: 'Check for updates', downloadUpdate: 'Download update', installUpdate: 'Restart and install', updateAvailable: 'Version {version} is available', downloadingUpdate: 'Downloading update: {percent}%', readyToInstall: 'Version {version} is ready to install', upToDate: 'BARLAS Browser is up to date', updateError: 'Could not check for updates', checkingUpdates: 'Checking for updates…', update: 'Update' },
+  en: { settings: 'Settings', searchEngine: 'Search engine', startup: 'Startup', restoreTabs: 'Restore open tabs after restart', language: 'Interface language', automatic: 'Automatic (country and system)', languageNote: 'Automatic mode uses your country and operating-system language.', downloads: 'Downloads', openDownloads: 'Open downloads folder', emptyDownloads: 'No downloads in this session yet', openFile: 'Open file', showFile: 'Show in folder', saved: 'Saved', history: 'History', searchHistory: 'Search history', clearHistory: 'Clear browsing history', emptyHistory: 'No browsing history yet', removeHistory: 'Remove from history', updates: 'Updates', checkUpdates: 'Check for updates', downloadUpdate: 'Download update', installUpdate: 'Restart and install', updateAvailable: 'Version {version} is available', downloadingUpdate: 'Downloading update: {percent}%', readyToInstall: 'Version {version} is ready to install', upToDate: 'BARLAS Browser is up to date', updateError: 'Could not check for updates', checkingUpdates: 'Checking for updates…', update: 'Update', privacy: 'Privacy', adBlock: 'Ad and tracker blocking', adBlockNote: 'Uses EasyList and EasyPrivacy. The counter shows blocked requests in this session.', blockedRequests: '{count} requests blocked' },
   kk: { settings: 'Баптаулар', searchEngine: 'Іздеу жүйесі', startup: 'Іске қосу', restoreTabs: 'Қайта іске қосқанда ашық беттерді қалпына келтіру', language: 'Интерфейс тілі', automatic: 'Автоматты (ел және жүйе)', languageNote: 'Автоматты режим елді және операциялық жүйе тілін пайдаланады.', downloads: 'Жүктеулер қалтасын ашу', saved: 'Сақталды', history: 'Тарих', searchHistory: 'Тарихтан іздеу', clearHistory: 'Тарихты тазалау', emptyHistory: 'Тарих әзірге бос', removeHistory: 'Тарихтан жою' },
   ky: { settings: 'Жөндөөлөр', searchEngine: 'Издөө тутуму', startup: 'Иштетүү', restoreTabs: 'Кайра иштеткенде ачык өтмөктөрдү калыбына келтирүү', language: 'Интерфейс тили', automatic: 'Автоматтык (өлкө жана система)', languageNote: 'Автоматтык режим өлкөнү жана операциялык тутумдун тилин колдонот.', downloads: 'Жүктөөлөр папкасын ачуу', saved: 'Сакталды', history: 'Тарых', searchHistory: 'Тарыхтан издөө', clearHistory: 'Тарыхты тазалоо', emptyHistory: 'Тарых азырынча бош', removeHistory: 'Тарыхтан өчүрүү' },
   mn: { settings: 'Тохиргоо', searchEngine: 'Хайлтын систем', startup: 'Эхлүүлэх', restoreTabs: 'Дахин эхлүүлэхэд нээлттэй табуудыг сэргээх', language: 'Интерфейсийн хэл', automatic: 'Автомат (улс ба систем)', languageNote: 'Автомат горим улс болон үйлдлийн системийн хэлийг ашиглана.', downloads: 'Таталтын хавтсыг нээх', saved: 'Хадгаллаа', history: 'Түүх', searchHistory: 'Түүхээс хайх', clearHistory: 'Түүхийг арилгах', emptyHistory: 'Түүх хоосон байна', removeHistory: 'Түүхээс устгах' },
-  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Загрузки', openDownloads: 'Открыть папку загрузок', emptyDownloads: 'Загрузок в этом сеансе пока нет', openFile: 'Открыть файл', showFile: 'Показать в папке', saved: 'Сохранено', history: 'История', searchHistory: 'Поиск в истории', clearHistory: 'Очистить историю', emptyHistory: 'История пока пуста', removeHistory: 'Удалить из истории', updates: 'Обновления', checkUpdates: 'Проверить обновления', downloadUpdate: 'Скачать обновление', installUpdate: 'Перезапустить и установить', updateAvailable: 'Доступна версия {version}', downloadingUpdate: 'Загрузка обновления: {percent}%', readyToInstall: 'Версия {version} готова к установке', upToDate: 'Установлена последняя версия BARLAS Browser', updateError: 'Не удалось проверить обновления', checkingUpdates: 'Проверяем обновления…', update: 'Обновить' },
+  ru: { settings: 'Настройки', searchEngine: 'Поисковая система', startup: 'Запуск', restoreTabs: 'Восстанавливать открытые вкладки после перезапуска', language: 'Язык интерфейса', automatic: 'Автоматически (страна и система)', languageNote: 'Автоматический режим использует страну и язык операционной системы.', downloads: 'Загрузки', openDownloads: 'Открыть папку загрузок', emptyDownloads: 'Загрузок в этом сеансе пока нет', openFile: 'Открыть файл', showFile: 'Показать в папке', saved: 'Сохранено', history: 'История', searchHistory: 'Поиск в истории', clearHistory: 'Очистить историю', emptyHistory: 'История пока пуста', removeHistory: 'Удалить из истории', updates: 'Обновления', checkUpdates: 'Проверить обновления', downloadUpdate: 'Скачать обновление', installUpdate: 'Перезапустить и установить', updateAvailable: 'Доступна версия {version}', downloadingUpdate: 'Загрузка обновления: {percent}%', readyToInstall: 'Версия {version} готова к установке', upToDate: 'Установлена последняя версия BARLAS Browser', updateError: 'Не удалось проверить обновления', checkingUpdates: 'Проверяем обновления…', update: 'Обновить', privacy: 'Конфиденциальность', adBlock: 'Блокировать рекламу и трекеры', adBlockNote: 'Используются EasyList и EasyPrivacy. Счётчик показывает заблокированные запросы за текущий сеанс.', blockedRequests: 'Заблокировано запросов: {count}' },
   tr: { settings: 'Ayarlar', searchEngine: 'Arama motoru', startup: 'Başlangıç', restoreTabs: 'Yeniden başlatınca açık sekmeleri geri yükle', language: 'Arayüz dili', automatic: 'Otomatik (ülke ve sistem)', languageNote: 'Otomatik mod ülkenizi ve işletim sistemi dilini kullanır.', downloads: 'İndirilenler klasörünü aç', saved: 'Kaydedildi', history: 'Geçmiş', searchHistory: 'Geçmişte ara', clearHistory: 'Geçmişi temizle', emptyHistory: 'Geçmiş henüz boş', removeHistory: 'Geçmişten kaldır' },
   uz: { settings: 'Sozlamalar', searchEngine: 'Qidiruv tizimi', startup: 'Ishga tushirish', restoreTabs: 'Qayta ishga tushganda ochiq varaqlarni tiklash', language: 'Interfeys tili', automatic: 'Avtomatik (mamlakat va tizim)', languageNote: 'Avtomatik rejim mamlakat va operatsion tizim tilidan foydalanadi.', downloads: 'Yuklamalar jildini ochish', saved: 'Saqlandi', history: 'Tarix', searchHistory: 'Tarixdan qidirish', clearHistory: 'Tarixni tozalash', emptyHistory: 'Tarix hozircha bo‘sh', removeHistory: 'Tarixdan o‘chirish' }
 };
@@ -113,6 +113,9 @@ function applyLocale(locale) {
   $('#language-note').textContent = t('languageNote');
   $('#startup-label').textContent = t('startup');
   $('#restore-session-label').textContent = t('restoreTabs');
+  $('#privacy-label').textContent = t('privacy');
+  $('#adblock-enabled-label').textContent = t('adBlock');
+  $('#adblock-note').textContent = t('adBlockNote');
   $('#open-downloads').textContent = t('openDownloads');
   $('#update-title').textContent = t('updates');
   $('#check-updates').textContent = t('checkUpdates');
@@ -250,6 +253,17 @@ function renderUpdate() {
   else $('#update-status').textContent = t('checkingUpdates');
 }
 
+function renderAdBlock() {
+  const adBlock = browserState.adBlock || { enabled: true, ready: false, blockedCount: 0 };
+  const count = Number(adBlock.blockedCount) || 0;
+  $('#adblock-enabled').checked = adBlock.enabled !== false;
+  $('#adblock-status').classList.toggle('disabled', adBlock.enabled === false || !adBlock.ready);
+  $('#adblock-count').textContent = count > 999 ? '999+' : String(count);
+  const label = t('blockedRequests').replace('{count}', count);
+  $('#adblock-status').title = label;
+  $('#adblock-status').ariaLabel = label;
+}
+
 function renderBookmarks() {
   const list = $('#bookmarks-list');
   list.replaceChildren();
@@ -337,6 +351,7 @@ function render(state) {
   renderHistory();
   renderDownloads();
   renderUpdate();
+  renderAdBlock();
   populateLanguages();
   $('#search-engine').value = state.settings?.searchEngine || 'google';
   $('#restore-session').checked = state.settings?.restoreSession !== false;
@@ -428,6 +443,10 @@ $('#restore-session').addEventListener('change', async (event) => {
   await window.barlas.setSetting('restoreSession', event.target.checked);
   showToast(t('saved'));
 });
+$('#adblock-enabled').addEventListener('change', async (event) => {
+  await window.barlas.setSetting('adBlockEnabled', event.target.checked);
+  showToast(t('saved'));
+});
 $('#interface-language').addEventListener('change', async (event) => {
   await window.barlas.setSetting('language', event.target.value);
   showToast(t('saved'));
@@ -437,6 +456,7 @@ $('#open-downloads-folder').addEventListener('click', () => window.barlas.openDo
 $('#check-updates').addEventListener('click', () => window.barlas.checkUpdates());
 $('#download-update').addEventListener('click', () => window.barlas.downloadUpdate());
 $('#update-button').addEventListener('click', () => setSettingsOpen(true));
+$('#adblock-status').addEventListener('click', () => setSettingsOpen(true));
 window.addEventListener('resize', requestLayout);
 
 let toastTimer;

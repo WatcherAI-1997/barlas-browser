@@ -35,6 +35,7 @@ boundary, and a focused roadmap for everyday browsing.
 - Reopen the last closed tab with `Ctrl/Cmd + Shift + T`
 - Download center with live progress, open-file, and show-in-folder actions
 - Native in-browser updates with download progress and restart-to-install
+- Built-in EasyList/EasyPrivacy ad and tracker blocking with an offline engine and weekly filter refresh
 - Working settings for search engine, interface language, and startup restore
 - Browser menu with downloads, zoom, fullscreen, and version information
 - Back, forward, reload, stop, home, and common keyboard shortcuts
@@ -50,7 +51,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.3.2-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.3.3-Windows-x64.exe`, choose an installation
 directory, and complete the black-and-red setup wizard. On the final page you
 can optionally add a desktop shortcut before launching the browser.
 
@@ -145,7 +146,8 @@ BARLAS Browser — открытый самостоятельный desktop-бр�
 для 251 страны и территории (79 языков),
 локальные закладки, постоянную историю по датам с поиском и очисткой,
 восстановление открытых и недавно закрытых вкладок, центр загрузок,
-скачивание и установку обновлений внутри браузера, горячие клавиши
+скачивание и установку обновлений внутри браузера, блокировку рекламы и трекеров,
+горячие клавиши
 и изоляцию сайтов. В браузере нет встроенного ИИ и
 зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,

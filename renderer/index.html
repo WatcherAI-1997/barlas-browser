@@ -28,6 +28,7 @@
         <button id="bookmark-page" type="button" class="bookmark-button" title="Добавить в закладки" aria-label="Добавить в закладки">☆</button>
         <button id="go" type="submit" class="go-button" aria-label="Перейти">↵</button>
       </form>
+      <button id="adblock-status" class="shield-button" type="button" title="Блокировка рекламы" aria-label="Блокировка рекламы"><span class="shield-icon">⬟</span><span id="adblock-count">0</span></button>
       <button id="update-button" class="update-button" type="button" hidden><span class="update-dot"></span><span id="update-button-label">Обновить</span></button>
       <button id="menu" class="toolbar-button" title="Меню" aria-label="Меню">⋮</button>
     </nav>
@@ -86,6 +87,14 @@
           <input id="restore-session" type="checkbox" />
           <span id="restore-session-label">Восстанавливать открытые вкладки</span>
         </label>
+      </div>
+      <div class="setting-group">
+        <div id="privacy-label" class="setting-label">Конфиденциальность</div>
+        <label class="setting-switch">
+          <input id="adblock-enabled" type="checkbox" />
+          <span id="adblock-enabled-label">Блокировать рекламу и трекеры</span>
+        </label>
+        <p id="adblock-note" class="setting-note">Используются фильтры EasyList и EasyPrivacy. Счётчик показывает заблокированные запросы за текущий сеанс.</p>
       </div>
       <button id="open-downloads" class="setting-action">Открыть папку загрузок</button>
       <div class="update-card">

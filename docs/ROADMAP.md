@@ -24,7 +24,7 @@ The roadmap is directional. Security fixes take priority over feature work.
 
 ## 0.3 — Privacy and reliability
 
-- [ ] Tracker and ad blocking
+- [x] EasyList/EasyPrivacy tracker and ad blocking
 - [ ] Profile isolation and private windows
 - [ ] Safe browsing checks
 - [x] Native update checks, download progress, and restart-to-install

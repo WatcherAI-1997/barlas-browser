@@ -60,7 +60,8 @@ function sanitizeBrowserData(value) {
     settings: {
       searchEngine: SEARCH_ENGINES.has(settings.searchEngine) ? settings.searchEngine : 'google',
       restoreSession: settings.restoreSession !== false,
-      language: safeLanguage(settings.language)
+      language: safeLanguage(settings.language),
+      adBlockEnabled: settings.adBlockEnabled !== false
     }
   };
 }

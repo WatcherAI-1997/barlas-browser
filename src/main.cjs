@@ -4,6 +4,7 @@ const path = require('node:path');
 const fs = require('node:fs/promises');
 const { app, BrowserWindow, WebContentsView, dialog, ipcMain, Menu, session, shell } = require('electron');
 const { autoUpdater } = require('electron-updater');
+const { ElectronBlocker } = require('@ghostery/adblocker-electron');
 const { normalizeAddress } = require('./navigation.cjs');
 const {
   BUNDLED_LANGUAGES,
@@ -18,6 +19,7 @@ const DEFAULT_LAYOUT = { x: 0, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
 const GEO_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 const TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';
+const ADBLOCK_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
 const EN_INTERFACE_COPY = Object.freeze({
   newTab: 'New tab',
@@ -137,6 +139,10 @@ let downloads = [];
 let quittingAfterSave = false;
 let installingUpdate = false;
 let updaterReady = false;
+let adBlocker = null;
+let adBlockActive = false;
+let blockedRequestCount = 0;
+let adBlockBroadcastTimer = null;
 
 function settingsPath() {
   return path.join(app.getPath('userData'), 'locale.json');
@@ -331,8 +337,84 @@ function state() {
     recentlyClosed: browserData.recentlyClosed,
     downloads: downloads.map(({ item, ...download }) => download),
     update: updateState,
+    adBlock: { enabled: browserData.settings.adBlockEnabled, ready: Boolean(adBlocker), blockedCount: blockedRequestCount },
     activeBookmarked: browserData.bookmarks.some((bookmark) => bookmark.url === activeTab()?.displayUrl)
   };
+}
+
+function adBlockCachePath() {
+  return path.join(app.getPath('userData'), 'adblock-engine.bin');
+}
+
+function countBlockedRequest() {
+  blockedRequestCount += 1;
+  if (adBlockBroadcastTimer) return;
+  adBlockBroadcastTimer = setTimeout(() => {
+    adBlockBroadcastTimer = null;
+    broadcast();
+  }, 250);
+}
+
+function activateAdBlocker(blocker, browserSession) {
+  if (adBlocker && adBlockActive) {
+    try { adBlocker.disableBlockingInSession(browserSession); } catch { /* already disabled */ }
+  }
+  adBlocker = blocker;
+  adBlocker.on('request-blocked', countBlockedRequest);
+  adBlocker.on('request-redirected', countBlockedRequest);
+  adBlockActive = false;
+  if (browserData.settings.adBlockEnabled) {
+    adBlocker.enableBlockingInSession(browserSession);
+    adBlockActive = true;
+  }
+  broadcast();
+}
+
+async function setupAdBlocker(browserSession) {
+  const bundledPath = path.join(__dirname, '..', 'assets', 'adblock-engine.bin');
+  let cacheFresh = false;
+  let enginePath = bundledPath;
+  try {
+    const stats = await fs.stat(adBlockCachePath());
+    cacheFresh = Date.now() - stats.mtimeMs < ADBLOCK_CACHE_MAX_AGE;
+    if (cacheFresh) enginePath = adBlockCachePath();
+  } catch {
+    // The bundled engine is available on first launch.
+  }
+
+  try {
+    const serialized = await fs.readFile(enginePath);
+    activateAdBlocker(ElectronBlocker.deserialize(serialized), browserSession);
+  } catch {
+    // Browsing still works if the filter engine cannot be read.
+  }
+
+  if (cacheFresh) return;
+  ElectronBlocker.fromPrebuiltAdsAndTracking(fetch).then(async (freshBlocker) => {
+    try {
+      const temporaryPath = `${adBlockCachePath()}.tmp`;
+      await fs.mkdir(app.getPath('userData'), { recursive: true });
+      await fs.writeFile(temporaryPath, freshBlocker.serialize());
+      await fs.rename(temporaryPath, adBlockCachePath());
+      activateAdBlocker(freshBlocker, browserSession);
+    } catch {
+      // Keep using the bundled engine when refreshing fails.
+    }
+  }).catch(() => undefined);
+}
+
+function setAdBlockEnabled(enabled) {
+  const browserSession = session.fromPartition('persist:barlas-browser');
+  browserData.settings.adBlockEnabled = enabled;
+  if (adBlocker) {
+    if (enabled && !adBlockActive) {
+      adBlocker.enableBlockingInSession(browserSession);
+      adBlockActive = true;
+    } else if (!enabled && adBlockActive) {
+      adBlocker.disableBlockingInSession(browserSession);
+      adBlockActive = false;
+    }
+  }
 }
 
 async function refreshUpdateState() {
@@ -666,6 +748,8 @@ async function updateSetting(key, value) {
     browserData.settings.searchEngine = value;
   } else if (key === 'restoreSession' && typeof value === 'boolean') {
     browserData.settings.restoreSession = value;
+  } else if (key === 'adBlockEnabled' && typeof value === 'boolean') {
+    setAdBlockEnabled(value);
   } else if (key === 'language') {
     browserData.settings.language = safeLanguage(value);
     localeState = await detectLocale(browserData.settings.language);
@@ -829,6 +913,7 @@ app.whenReady().then(async () => {
       broadcast();
     });
   });
+  await setupAdBlocker(browserSession);
   installIpc();
   setupAutoUpdater();
   createWindow();
