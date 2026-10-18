@@ -34,7 +34,7 @@ boundary, and a focused roadmap for everyday browsing.
 - Automatic restore of open web tabs after restart
 - Reopen the last closed tab with `Ctrl/Cmd + Shift + T`
 - Download center with live progress, open-file, and show-in-folder actions
-- Automatic GitHub release checks with an in-browser update notice and installer download
+- Native in-browser updates with download progress and restart-to-install
 - Working settings for search engine, interface language, and startup restore
 - Browser menu with downloads, zoom, fullscreen, and version information
 - Back, forward, reload, stop, home, and common keyboard shortcuts
@@ -50,7 +50,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.3.0-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.3.1-Windows-x64.exe`, choose an installation
 directory, and complete the black-and-red setup wizard. On the final page you
 can optionally add a desktop shortcut before launching the browser.
 
@@ -122,7 +122,7 @@ be searched, cleared completely, or edited one item at a time.
 ## Project status
 
 Version `0.3.x` adds the first daily-browsing features, download management,
-closed-tab recovery, and update discovery. Workspaces, tab groups, per-site
+closed-tab recovery, and native updates. Workspaces, tab groups, per-site
 permissions, content blocking, and signed installers are tracked in the
 [roadmap](docs/ROADMAP.md).
 
@@ -145,7 +145,7 @@ BARLAS Browser — открытый самостоятельный desktop-бр�
 для 251 страны и территории (79 языков),
 локальные закладки, постоянную историю по датам с поиском и очисткой,
 восстановление открытых и недавно закрытых вкладок, центр загрузок,
-уведомления об обновлениях, горячие клавиши
+скачивание и установку обновлений внутри браузера, горячие клавиши
 и изоляцию сайтов. В браузере нет встроенного ИИ и
 зависимости от BARLAS OS. Перед
 использованием с важными аккаунтами проекту ещё нужны аудит безопасности,

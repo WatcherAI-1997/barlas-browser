@@ -27,8 +27,8 @@ The roadmap is directional. Security fixes take priority over feature work.
 - [ ] Tracker and ad blocking
 - [ ] Profile isolation and private windows
 - [ ] Safe browsing checks
-- [x] Automatic release checks and installer download
-- [ ] Signed, unattended in-place updates
+- [x] Native update checks, download progress, and restart-to-install
+- [ ] Commercially signed update packages
 - [ ] Crash recovery
 - [ ] Signed Windows installer
 

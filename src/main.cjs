@@ -3,6 +3,7 @@
 const path = require('node:path');
 const fs = require('node:fs/promises');
 const { app, BrowserWindow, WebContentsView, dialog, ipcMain, Menu, session, shell } = require('electron');
+const { autoUpdater } = require('electron-updater');
 const { normalizeAddress } = require('./navigation.cjs');
 const {
   BUNDLED_LANGUAGES,
@@ -12,7 +13,6 @@ const {
   supportedSystemLanguage
 } = require('./localization.cjs');
 const { safeLanguage, sanitizeBrowserData } = require('./browser-data.cjs');
-const { checkForUpdate } = require('./updater.cjs');
 
 const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
@@ -135,6 +135,8 @@ let restoringSession = false;
 let updateState = { status: 'idle', latestVersion: '', downloadUrl: '', pageUrl: '', checkedAt: 0 };
 let downloads = [];
 let quittingAfterSave = false;
+let installingUpdate = false;
+let updaterReady = false;
 
 function settingsPath() {
   return path.join(app.getPath('userData'), 'locale.json');
@@ -334,31 +336,78 @@ function state() {
 }
 
 async function refreshUpdateState() {
+  if (!app.isPackaged || !updaterReady) {
+    updateState = { ...updateState, status: 'error', checkedAt: Date.now() };
+    broadcast();
+    return updateState;
+  }
   updateState = { ...updateState, status: 'checking' };
   broadcast();
   try {
-    const available = await checkForUpdate(app.getVersion());
-    updateState = available
-      ? { status: 'available', latestVersion: available.version, downloadUrl: available.downloadUrl, pageUrl: available.pageUrl, checkedAt: Date.now() }
-      : { status: 'current', latestVersion: app.getVersion(), downloadUrl: '', pageUrl: '', checkedAt: Date.now() };
+    await autoUpdater.checkForUpdates();
   } catch {
     updateState = { ...updateState, status: 'error', checkedAt: Date.now() };
+    broadcast();
   }
-  broadcast();
   return updateState;
 }
 
-function downloadUpdate() {
-  if (updateState.status !== 'available') return false;
-  if (updateState.downloadUrl) {
-    session.fromPartition('persist:barlas-browser').downloadURL(updateState.downloadUrl);
+async function downloadUpdate() {
+  if (updateState.status === 'downloaded') {
+    persistBrowserData();
+    await saveQueue;
+    installingUpdate = true;
+    autoUpdater.quitAndInstall(false, true);
     return true;
   }
-  if (updateState.pageUrl) {
-    shell.openExternal(updateState.pageUrl).catch(() => undefined);
+  if (updateState.status === 'available') {
+    updateState = { ...updateState, status: 'downloading', percent: 0, transferred: 0, total: 0 };
+    broadcast();
+    try {
+      await autoUpdater.downloadUpdate();
+    } catch {
+      updateState = { ...updateState, status: 'error', checkedAt: Date.now() };
+      broadcast();
+      return false;
+    }
     return true;
   }
   return false;
+}
+
+function setupAutoUpdater() {
+  if (!app.isPackaged || updaterReady) return;
+  updaterReady = true;
+  autoUpdater.autoDownload = false;
+  autoUpdater.autoInstallOnAppQuit = true;
+  autoUpdater.allowPrerelease = false;
+  autoUpdater.allowDowngrade = false;
+  autoUpdater.on('update-available', (info) => {
+    updateState = { status: 'available', latestVersion: info.version, checkedAt: Date.now(), percent: 0, transferred: 0, total: 0 };
+    broadcast();
+  });
+  autoUpdater.on('update-not-available', () => {
+    updateState = { status: 'current', latestVersion: app.getVersion(), checkedAt: Date.now(), percent: 0, transferred: 0, total: 0 };
+    broadcast();
+  });
+  autoUpdater.on('download-progress', (progress) => {
+    updateState = {
+      ...updateState,
+      status: 'downloading',
+      percent: Math.max(0, Math.min(100, Number(progress.percent) || 0)),
+      transferred: Number(progress.transferred) || 0,
+      total: Number(progress.total) || 0
+    };
+    broadcast();
+  });
+  autoUpdater.on('update-downloaded', (info) => {
+    updateState = { ...updateState, status: 'downloaded', latestVersion: info.version, percent: 100, checkedAt: Date.now() };
+    broadcast();
+  });
+  autoUpdater.on('error', () => {
+    updateState = { ...updateState, status: 'error', checkedAt: Date.now() };
+    broadcast();
+  });
 }
 
 function broadcast() {
@@ -781,6 +830,7 @@ app.whenReady().then(async () => {
     });
   });
   installIpc();
+  setupAutoUpdater();
   createWindow();
   setInterval(refreshUpdateState, 6 * 60 * 60 * 1000).unref();
   app.on('activate', () => {
@@ -789,7 +839,7 @@ app.whenReady().then(async () => {
 });
 
 app.on('before-quit', (event) => {
-  if (quittingAfterSave) return;
+  if (quittingAfterSave || installingUpdate) return;
   event.preventDefault();
   persistBrowserData();
   saveQueue.finally(() => {
