@@ -14,7 +14,7 @@ const {
 } = require('./localization.cjs');
 const { safeLanguage, sanitizeBrowserData } = require('./browser-data.cjs');
 
-const DEFAULT_LAYOUT = { x: 58, y: 102, right: 0, bottom: 0 };
+const DEFAULT_LAYOUT = { x: 0, y: 102, right: 0, bottom: 0 };
 const GEO_ENDPOINT = 'https://ipwho.is/?fields=success,country_code';
 const GEO_CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 const TRANSLATE_ENDPOINT = 'https://api.mymemory.translated.net/get';

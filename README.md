@@ -14,7 +14,7 @@
 ![BARLAS Browser interface preview](docs/interface-preview.svg)
 
 BARLAS Browser is an open desktop browser built on Chromium. It combines broad
-website compatibility with a compact Opera-inspired interface, a clear security
+website compatibility with a familiar Chrome-inspired interface, a clear security
 boundary, and a focused roadmap for everyday browsing.
 
 > [!IMPORTANT]
@@ -50,7 +50,7 @@ boundary, and a focused roadmap for everyday browsing.
 
 Download the current installer from the
 [latest GitHub release](https://github.com/WatcherAI-1997/barlas-browser/releases/latest).
-Run `BARLAS-Browser-Setup-0.3.1-Windows-x64.exe`, choose an installation
+Run `BARLAS-Browser-Setup-0.3.2-Windows-x64.exe`, choose an installation
 directory, and complete the black-and-red setup wizard. On the final page you
 can optionally add a desktop shortcut before launching the browser.
 
@@ -140,7 +140,7 @@ scope; the same commands already run locally.
 ## Русский
 
 BARLAS Browser — открытый самостоятельный desktop-браузер на Chromium с
-компактным интерфейсом в духе Opera. Текущая alpha-версия уже поддерживает
+привычным интерфейсом в духе Chrome и фирменной темой BARLAS. Текущая alpha-версия уже поддерживает
 вкладки, Google-поиск из адресной строки, автоматический выбор основного языка
 для 251 страны и территории (79 языков),
 локальные закладки, постоянную историю по датам с поиском и очисткой,

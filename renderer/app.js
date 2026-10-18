@@ -89,20 +89,10 @@ function applyLocale(locale) {
   document.documentElement.lang = language;
   $('#new-tab').title = `${t('newTab')} (Ctrl+T)`;
   $('#new-tab').ariaLabel = t('newTab');
-  $('.rail').ariaLabel = t('sidebar');
-  $('#home').title = t('newTab');
-  $('#home').ariaLabel = t('newTab');
-  $('#home .rail-label').textContent = t('newTab');
-  $('#bookmarks').title = bt('bookmarks');
-  $('#bookmarks').ariaLabel = bt('bookmarks');
-  $('#bookmarks .rail-label').textContent = bt('bookmarks');
   $('#bookmarks-panel').ariaLabel = bt('bookmarks');
   $('#bookmarks-title').textContent = bt('bookmarks');
   $('#bookmarks-empty').textContent = bt('emptyBookmarks');
   $('#close-bookmarks').ariaLabel = bt('close');
-  $('#history').title = t('history');
-  $('#history').ariaLabel = t('history');
-  $('#history .rail-label').textContent = t('history');
   $('#history-panel').ariaLabel = t('history');
   $('#history-title').textContent = t('history');
   $('#history-search').placeholder = t('searchHistory');
@@ -110,17 +100,11 @@ function applyLocale(locale) {
   $('#clear-history').textContent = t('clearHistory');
   $('#history-empty').textContent = t('emptyHistory');
   $('#close-history').ariaLabel = bt('close');
-  $('#downloads').title = t('downloads');
-  $('#downloads').ariaLabel = t('downloads');
-  $('#downloads .rail-label').textContent = t('downloads');
   $('#downloads-panel').ariaLabel = t('downloads');
   $('#downloads-title').textContent = t('downloads');
   $('#downloads-empty').textContent = t('emptyDownloads');
   $('#open-downloads-folder').textContent = t('openDownloads');
   $('#close-downloads').ariaLabel = bt('close');
-  $('#settings').title = t('settings');
-  $('#settings').ariaLabel = t('settings');
-  $('#settings .rail-label').textContent = t('settings');
   $('#settings-panel').ariaLabel = t('settings');
   $('#settings-title').textContent = t('settings');
   $('#close-settings').ariaLabel = bt('close');
@@ -209,7 +193,6 @@ function renderDownloads() {
   list.replaceChildren();
   const downloads = browserState.downloads || [];
   $('#downloads-empty').hidden = downloads.length > 0;
-  $('#download-dot').hidden = !downloads.some((download) => download.status === 'progressing');
   for (const download of downloads) {
     const card = document.createElement('div');
     card.className = 'download-item';
@@ -375,7 +358,7 @@ function render(state) {
 }
 
 function requestLayout() {
-  window.barlas.reportLayout({ x: settingsOpen ? 436 : (historyOpen ? 456 : (downloadsOpen ? 496 : (bookmarksOpen ? 376 : 76))), y: 102, right: 0, bottom: 0 });
+  window.barlas.reportLayout({ x: settingsOpen ? 360 : (historyOpen ? 380 : (downloadsOpen ? 420 : (bookmarksOpen ? 300 : 0))), y: 102, right: 0, bottom: 0 });
 }
 
 function setBookmarksOpen(open) {
@@ -385,11 +368,6 @@ function setBookmarksOpen(open) {
   $('#settings-panel').hidden = true;
   $('#history-panel').hidden = true;
   $('#downloads-panel').hidden = true;
-  $('#bookmarks').classList.toggle('active', open);
-  $('#settings').classList.remove('active');
-  $('#history').classList.remove('active');
-  $('#downloads').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !settingsOpen && !historyOpen && !downloadsOpen);
   requestLayout();
 }
 
@@ -400,11 +378,6 @@ function setHistoryOpen(open) {
   $('#bookmarks-panel').hidden = true;
   $('#settings-panel').hidden = true;
   $('#downloads-panel').hidden = true;
-  $('#history').classList.toggle('active', open);
-  $('#bookmarks').classList.remove('active');
-  $('#settings').classList.remove('active');
-  $('#downloads').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !settingsOpen && !bookmarksOpen && !downloadsOpen);
   requestLayout();
   if (open) $('#history-search').focus();
 }
@@ -416,11 +389,6 @@ function setSettingsOpen(open) {
   $('#bookmarks-panel').hidden = true;
   $('#history-panel').hidden = true;
   $('#downloads-panel').hidden = true;
-  $('#settings').classList.toggle('active', open);
-  $('#bookmarks').classList.remove('active');
-  $('#history').classList.remove('active');
-  $('#downloads').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen && !downloadsOpen);
   requestLayout();
 }
 
@@ -431,11 +399,6 @@ function setDownloadsOpen(open) {
   $('#bookmarks-panel').hidden = true;
   $('#history-panel').hidden = true;
   $('#settings-panel').hidden = true;
-  $('#downloads').classList.toggle('active', open);
-  $('#bookmarks').classList.remove('active');
-  $('#history').classList.remove('active');
-  $('#settings').classList.remove('active');
-  $('#home').classList.toggle('active', !open && !bookmarksOpen && !historyOpen && !settingsOpen);
   requestLayout();
 }
 
@@ -446,10 +409,6 @@ $('#address-form').addEventListener('submit', (event) => {
 });
 address.addEventListener('focus', () => address.select());
 $('#new-tab').addEventListener('click', () => window.barlas.newTab());
-$('#home').addEventListener('click', () => window.barlas.newTab());
-$('#bookmarks').addEventListener('click', () => setBookmarksOpen(!bookmarksOpen));
-$('#history').addEventListener('click', () => setHistoryOpen(!historyOpen));
-$('#downloads').addEventListener('click', () => setDownloadsOpen(!downloadsOpen));
 $('#close-bookmarks').addEventListener('click', () => setBookmarksOpen(false));
 $('#close-history').addEventListener('click', () => setHistoryOpen(false));
 $('#close-downloads').addEventListener('click', () => setDownloadsOpen(false));
@@ -460,7 +419,6 @@ $('#bookmark-page').addEventListener('click', () => window.barlas.toggleBookmark
 $('#back').addEventListener('click', () => window.barlas.back());
 $('#forward').addEventListener('click', () => window.barlas.forward());
 $('#reload').addEventListener('click', () => activeTab()?.loading ? window.barlas.stop() : window.barlas.reload());
-$('#settings').addEventListener('click', () => setSettingsOpen(!settingsOpen));
 $('#menu').addEventListener('click', () => window.barlas.showMenu());
 $('#search-engine').addEventListener('change', async (event) => {
   await window.barlas.setSetting('searchEngine', event.target.value);
